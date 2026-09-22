@@ -3,9 +3,6 @@ title: Inverse Modeling COVID-19
 slug: inverse-modeling-covid-19
 date: 2020-03-31
 status: published
-summary: "Fitting an SEIR epidemiological model to case data by inverse modelling, and a deliberate refusal to forecast anything with it."
-category: data-science
-tags: [covid-19]
 wp_id: 95
 wp_link: "https://seanmacrae.com/inverse-modeling-covid-19/"
 wp_excerpt: "Introduction I have mixed feelings about Data Scientists sharing ad-hoc COVID-19 analyses and models across social media. On the one hand, I’ve seen people fit exponential curves through the data and extrapolate it out a month, giving no consideration to how a virus actually spreads through a population, or people using AutoML (autonomous machine learning) to train models that evaluate well but don’t deliver any […]"
@@ -13,6 +10,9 @@ wp_categories: [Data Science]
 wp_tags: [COVID-19, Inverse Modeling, MCMC, R, SEIR]
 source: wordpress-rest-v2
 updated: 2020-05-24
+summary: "Fitting an SEIR epidemiological model to case data by inverse modelling, and a deliberate refusal to forecast anything with it."
+category: data-science
+tags: [covid-19]
 ---
 
 ### Introduction

@@ -184,7 +184,7 @@ Overall, _the precision is garbage_. What’s boosting the accuracy and fbeta sc
 
 Using the Gradient-weighted Class Activation Mapping (Grad-CAM) implementation in fastai, I visualized what the trained model is “seeing.”
 
-<div class="sm-gallery"><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2145" height="974" src="media/Screen-Shot-2020-05-13-at-9.49.35-PM-2.webp" width="662"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2148" height="974" src="media/Screen-Shot-2020-05-13-at-9.47.56-PM-2.webp" width="662"/></figure><figure><img alt="" data-full-url="https://seanmacrae.com/wp-content/uploads/2020/05/Screen-Shot-2020-05-13-at-9.50.57-PM-2.png" data-link="https://seanmacrae.com/?attachment_id=2150" height="970" src="media/Screen-Shot-2020-05-13-at-9.50.57-PM-2.webp" width="666"/></figure></div>
+<figure class="sm-gallery-fig"><div class="sm-gallery"><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2145" height="974" src="media/Screen-Shot-2020-05-13-at-9.49.35-PM-2.webp" width="662"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2148" height="974" src="media/Screen-Shot-2020-05-13-at-9.47.56-PM-2.webp" width="662"/></figure><figure><img alt="" data-full-url="https://seanmacrae.com/wp-content/uploads/2020/05/Screen-Shot-2020-05-13-at-9.50.57-PM-2.png" data-link="https://seanmacrae.com/?attachment_id=2150" height="970" src="media/Screen-Shot-2020-05-13-at-9.50.57-PM-2.webp" width="666"/></figure></div><figcaption>The highlighted areas of the above images show what the Neural Net is looking at when classifying characters on comic book covers.</figcaption></figure>
 
 ---
 

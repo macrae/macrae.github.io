@@ -3,15 +3,15 @@ title: Restoration of Original Drawings from Comic Book Covers
 slug: restoration-of-original-drawings-from-comic-book-covers
 date: 2020-05-24
 status: published
-summary: "A character classifier that looked accurate turned out to be reading logos and barcodes rather than drawings. Building a network to strip them away."
-category: machine-learning
-tags: [comics, image-restoration, fast-ai]
 wp_id: 2171
 wp_link: "https://seanmacrae.com/restoration-of-original-drawings-from-comic-book-covers/"
 wp_excerpt: "In my last write-up on multi-label character classification, I discovered that the model precision was spurious. It wasn’t relying on drawing-related features to classify characters, things like Superman’s “S” or Aquaman’s Trident. Instead, the neural net was keying off non-drawing related entities; things like the series title, publisher logo, or price and on-sale-date inset. The highlighted […]"
 wp_categories: [Data Science]
 wp_tags: [ComicsNet, fast.ai, Image Restoration, UNET]
 source: wordpress-rest-v2
+summary: "A character classifier that looked accurate turned out to be reading logos and barcodes rather than drawings. Building a network to strip them away."
+category: machine-learning
+tags: [comics, image-restoration, fast-ai]
 ---
 
 In my last write-up on [multi-label character classification](https://seanmacrae.com/classification-of-characters-on-comic-book-covers/), I discovered that the model precision was spurious. It wasn’t relying on drawing-related features to classify characters, things like Superman’s “S” or Aquaman’s Trident. Instead, the neural net was keying off non-drawing related entities; things like the series title, publisher logo, or price and on-sale-date inset.
@@ -94,7 +94,7 @@ The approach I used was to train a UNET to go from an input image that contains 
 
 ---
 
-<div class="sm-gallery"><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2346" height="480" src="media/Green-Lantern-Green-Lantern-164-Original-2003-05-14-1.webp" width="400"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2348" height="480" src="media/Detective-Comics-Detective-Comics-33-Original-2014-07-09-1.webp" width="400"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2347" height="480" src="media/Injustice-vs.-Masters-of-the-Universe-Injustice-vs.-Masters-of-the-Universe-2-Original-2018-08-15.webp" width="400"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2345" height="480" src="media/Green-Lantern-Green-Lantern-49-Neal-Adams-Variant-2016-02-03.webp" width="400"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2344" height="480" src="media/Detective-Comics-Detective-Comics-35-Cliff-Chiang-Variant-Cover-2014-10-01.webp" width="400"/></figure><figure><img alt="" data-full-url="https://seanmacrae.com/wp-content/uploads/2020/05/Action-Comics-Action-Comics-510-Original-1980-05-27-3.jpg" data-link="https://seanmacrae.com/?attachment_id=2358" height="480" src="media/Action-Comics-Action-Comics-510-Original-1980-05-27-3.webp" width="400"/></figure></div>
+<figure class="sm-gallery-fig"><div class="sm-gallery"><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2346" height="480" src="media/Green-Lantern-Green-Lantern-164-Original-2003-05-14-1.webp" width="400"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2348" height="480" src="media/Detective-Comics-Detective-Comics-33-Original-2014-07-09-1.webp" width="400"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2347" height="480" src="media/Injustice-vs.-Masters-of-the-Universe-Injustice-vs.-Masters-of-the-Universe-2-Original-2018-08-15.webp" width="400"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2345" height="480" src="media/Green-Lantern-Green-Lantern-49-Neal-Adams-Variant-2016-02-03.webp" width="400"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2344" height="480" src="media/Detective-Comics-Detective-Comics-35-Cliff-Chiang-Variant-Cover-2014-10-01.webp" width="400"/></figure><figure><img alt="" data-full-url="https://seanmacrae.com/wp-content/uploads/2020/05/Action-Comics-Action-Comics-510-Original-1980-05-27-3.jpg" data-link="https://seanmacrae.com/?attachment_id=2358" height="480" src="media/Action-Comics-Action-Comics-510-Original-1980-05-27-3.webp" width="400"/></figure></div><figcaption>Each of the above images is an input in the UNET. Each input has a corresponding target, which is the same image without barcodes. The model will attempt to map the input to the target image.</figcaption></figure>
 
 ---
 

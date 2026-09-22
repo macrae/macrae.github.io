@@ -215,6 +215,11 @@ figcaption b, figcaption strong { color: var(--sm-ink-soft); font-weight: 600; }
               grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .sm-gallery figure { margin: 0; }
 
+/* A gallery that carries its OWN caption describing the whole grid, as
+   distinct from captions on the individual images inside it. */
+.sm-gallery-fig { margin: 2.5rem 0; }
+.sm-gallery-fig .sm-gallery { margin: 0 0 0.6rem; }
+
 /* Figures may breathe past the measure on a wide screen. */
 @media (min-width: 60rem) {
   .sm-prose > figure.sm-wide-fig { width: 52rem; margin-left: calc((46rem - 52rem) / 2); }

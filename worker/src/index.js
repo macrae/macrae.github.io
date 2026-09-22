@@ -80,6 +80,42 @@ async function serveFromR2(request, env, key) {
   return new Response(obj.body, { headers });
 }
 
+/**
+ * Serve a static asset at EXACTLY the path asked for.
+ *
+ * Cloudflare's default asset handling redirects /foo.html to /foo, which is
+ * wrong here: mana-map links to `.html` explicitly everywhere -- its nav, its
+ * deck pages, and every link to a rendered handbook -- so the default turned
+ * every one of those into a 307 and an extra round trip. html_handling is set
+ * to "none" in wrangler.toml and the two behaviours we actually want are done
+ * here instead: a directory serves its index.html, and nothing redirects.
+ */
+async function serveAsset(request, env, path) {
+  const direct = await env.ASSETS.fetch(request);
+  if (direct.status !== 404) return direct;
+
+  // A directory: serve its index.html without bouncing the browser.
+  const candidates = [];
+  if (path.endsWith("/")) candidates.push(path + "index.html");
+  else if (!path.split("/").pop().includes(".")) candidates.push(path + "/index.html");
+
+  for (const candidate of candidates) {
+    const url = new URL(request.url);
+    url.pathname = candidate;
+    const res = await env.ASSETS.fetch(new Request(url, request));
+    if (res.status !== 404) return res;
+  }
+
+  // The site's own 404 page, with the right status on it.
+  const url = new URL(request.url);
+  url.pathname = "/404.html";
+  const notFound = await env.ASSETS.fetch(new Request(url, request));
+  return new Response(notFound.body, {
+    status: 404,
+    headers: notFound.headers,
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -107,6 +143,6 @@ export default {
       return admin.handle(request, env, email);
     }
 
-    return env.ASSETS.fetch(request);
+    return serveAsset(request, env, path);
   },
 };

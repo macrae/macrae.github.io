@@ -74,6 +74,7 @@ class Stats:
         self.tables = 0
         self.galleries = 0
         self.raw_html_blocks = 0
+        self.captions = 0
         self.unknown_tags = set()
 
 
@@ -244,14 +245,42 @@ def _block(node, stats, where, media, overrides):
     if any(h in classes for h in GALLERY_HINTS) and len(node.find_all("img")) > 1:
         stats.galleries += 1
         stats.raw_html_blocks += 1
-        inner = "".join(_raw(f, media, where) for f in node.find_all("figure")) \
-            or _raw(node, media, where)
+        figures = node.find_all("figure")
         stats.images += len(node.find_all("img"))
-        return f'<div class="sm-gallery">{inner}</div>'
+
+        if not figures:
+            # Nothing to rebuild from: emit the node whole, caption included.
+            stats.captions += len([c for c in node.find_all("figcaption")
+                                   if c.get_text(strip=True)])
+            return f'<div class="sm-gallery">{_raw(node, media, where)}</div>'
+
+        inner = "".join(_raw(f, media, where) for f in figures)
+        # Captions on the gallery's own items survive inside that raw HTML,
+        # but the gate cannot see them unless they are counted here.
+        stats.captions += len([c for f in figures
+                               for c in f.find_all("figcaption")
+                               if c.get_text(strip=True)])
+        grid = f'<div class="sm-gallery">{inner}</div>'
+
+        # THE GALLERY'S OWN CAPTION, which is a DIRECT child of this figure and
+        # therefore NOT in find_all("figure") above. Two were silently lost
+        # this way, and one of them is the only sentence explaining what an
+        # entire grid of images actually is ("each of the above images is an
+        # input in the UNET").
+        own = [c for c in node.find_all("figcaption", recursive=False)
+               if c.get_text(strip=True)]
+        if not own:
+            return grid
+        stats.captions += len(own)
+        caps = "".join(f"<figcaption>{c.decode_contents().strip()}</figcaption>"
+                       for c in own)
+        return f'<figure class="sm-gallery-fig">{grid}{caps}</figure>'
 
     if name == "figure":
         cap = node.find("figcaption")
         if cap and cap.get_text(strip=True):
+            stats.captions += len([c for c in node.find_all("figcaption")
+                                   if c.get_text(strip=True)])
             # A caption has no slot in markdown. The alternatives are dropping
             # it (lossy) or emitting an italic paragraph that LOOKS like a
             # caption but is semantically a paragraph -- a lie the renderer
@@ -344,6 +373,8 @@ def to_markdown(html_text, where, media, overrides):
     expected_eq = len(soup.select("img[class*=ql-img]"))
     expected_img = len(soup.find_all("img")) - expected_eq
     expected_vid = len(soup.find_all("video"))
+    expected_cap = len([c for c in soup.find_all("figcaption")
+                        if c.get_text(strip=True)])
 
     blocks = []
     for child in soup.children:
@@ -373,6 +404,11 @@ def to_markdown(html_text, where, media, overrides):
         raise ConvertError(
             f"{where}: {expected_vid} videos in the source but {stats.videos} "
             "in the output.")
+    if stats.captions != expected_cap:
+        raise ConvertError(
+            f"{where}: {expected_cap} non-empty figcaptions in the source but "
+            f"{stats.captions} in the output. A caption is content — one of "
+            "these explains what an entire gallery of images actually is.")
     return body, stats
 
 
@@ -452,6 +488,33 @@ def _fm_value(v):
     return s
 
 
+# Front-matter keys a HUMAN owns once curation has started. Re-converting must
+# never silently revert them -- doing exactly that wiped three published posts
+# back to `staged` and lost their summaries, categories and tags, along with
+# every media reference that the optimiser had rewritten.
+CURATED_KEYS = ("status", "summary", "category", "tags", "updated", "hero",
+                "hero_alt", "feed", "noindex", "scripts", "styles", "data",
+                "fallback", "permalink", "aliases")
+
+
+def existing_curation(path):
+    """Curated keys already in a post, so a re-convert carries them forward."""
+    if not path.exists():
+        return {}
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---"):
+        return {}
+    head = text.split("---\n", 2)[1]
+    out = {}
+    for line in head.split("\n"):
+        if ":" not in line or line.startswith((" ", "\t", "-")):
+            continue
+        key, _, value = line.partition(":")
+        if key.strip() in CURATED_KEYS:
+            out[key.strip()] = value.strip()
+    return out
+
+
 def convert_post(post, terms, force=False):
     slug = post["slug"]
     out_dir = POSTS_OUT / slug
@@ -487,14 +550,20 @@ def convert_post(post, terms, force=False):
     if post.get("featured_media"):
         fm["hero"] = "?"
 
+    # Carry forward anything a human decided. `status` in particular: without
+    # this, a re-convert quietly unpublishes every published post.
+    index = out_dir / "index.md"
+    curated = existing_curation(index)
+    fm.update(curated)
+
     lines = ["---"]
     for k, v in fm.items():
-        lines.append(f"{k}: {_fm_value(v)}")
+        lines.append(f"{k}: {v if k in curated else _fm_value(v)}")
     lines += ["---", "", body]
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "index.md").write_text("\n".join(lines), encoding="utf-8")
-    return stats, media
+    index.write_text("\n".join(lines), encoding="utf-8")
+    return stats, media, curated
 
 
 def main():
@@ -511,10 +580,10 @@ def main():
           f"{'tbl':>4} {'vid':>4} {'gal':>4} {'empty-p':>8}")
     total = {"images": 0, "equations": 0, "code_blocks": 0, "tables": 0,
              "videos": 0, "galleries": 0, "empty_p": 0}
-    media_plan, failures = {}, []
+    media_plan, failures, kept = {}, [], []
     for post in sorted(posts, key=lambda p: p["date_gmt"]):
         try:
-            stats, media = convert_post(post, terms)
+            stats, media, curated = convert_post(post, terms)
         except ConvertError as exc:
             failures.append((post["slug"], str(exc)))
             print(f"{post['slug'][:44]:46}  !! {str(exc).splitlines()[0][:60]}")
@@ -524,6 +593,8 @@ def main():
         print(f"{post['slug'][:44]:46} {words:>6} {stats.images:>4} "
               f"{stats.equations:>4} {stats.code_blocks:>5} {stats.tables:>4} "
               f"{stats.videos:>4} {stats.galleries:>4} {stats.empty_p:>8}")
+        if curated:
+            kept.append(f"{post['slug']}: kept {', '.join(sorted(curated))}")
         for k in total:
             total[k] += getattr(stats, k)
         media_plan[post["slug"]] = {k: str(v) for k, v in media.entries.items()}
@@ -536,6 +607,11 @@ def main():
     print(f"\nmedia plan -> archive/media_plan.json "
           f"({sum(len(v) for v in media_plan.values())} files across "
           f"{len(media_plan)} posts)")
+    if kept:
+        print(f"\ncurated front matter carried forward on {len(kept)} post(s):")
+        for line in kept:
+            print(f"  {line}")
+        print("  (re-run migrate/media.py to rewrite media references)")
     if failures:
         print(f"\n{len(failures)} POST(S) FAILED TO CONVERT:")
         for slug, msg in failures:

@@ -10,7 +10,12 @@ compatibility_date = "2026-09-01"
 [assets]
 directory = "./dist"
 binding = "ASSETS"
-not_found_handling = "404-page"
+not_found_handling = "none"
+# NO REDIRECTS. The default ("auto-trailing-slash") rewrites /foo.html to /foo,
+# which turned every mana-map link -- its nav, its deck pages, every handbook
+# -- into a 307 plus an extra round trip. Directory indexes and the 404 page
+# are handled explicitly in worker/src/index.js instead.
+html_handling = "none"
 
 # The queryable data behind the visualisations. Content does NOT live here --
 # posts stay markdown in git.
@@ -22,10 +27,22 @@ not_found_handling = "404-page"
 # database_id = "PASTE-AFTER-CREATE"
 
 # Mana Map's artifacts.
-# Create with:  npx wrangler r2 bucket create seanmacrae-data
-[[r2_buckets]]
-binding = "DATA"
-bucket_name = "seanmacrae-data"
+#
+# COMMENTED OUT UNTIL R2 IS ENABLED ON THE ACCOUNT. R2 is a one-time switch in
+# the Cloudflare dashboard (Storage & Databases -> R2); until it is thrown, the
+# API returns "Please enable R2" and a deploy carrying this binding is rejected
+# outright -- taking the whole site down with it rather than just the data.
+#
+# The Worker already handles the absence: /mana-map/data/* answers 503 with a
+# plain message, so the essays, the handbooks and the viz shell all serve while
+# only the atlas's artifacts are missing.
+#
+# To finish:  npx wrangler r2 bucket create seanmacrae-data
+#             uncomment the three lines below
+#             make sync-data && make deploy
+# [[r2_buckets]]
+# binding = "DATA"
+# bucket_name = "seanmacrae-data"
 
 [vars]
 GITHUB_REPO = "macrae/macrae.github.io"
