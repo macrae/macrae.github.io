@@ -138,11 +138,19 @@ def check_tree(root, corpus, report):
 
     # ---- the files whose absence takes the site down
     cname = root / "CNAME"
-    if not cname.exists():
-        report.error("CNAME", "missing — the custom domain stops working")
-    elif cname.read_text(encoding="utf-8").strip() != spec.CNAME:
-        report.error("CNAME", f"says {cname.read_text().strip()!r}, "
-                              f"expected {spec.CNAME!r}")
+    if spec.CUSTOM_DOMAIN_LIVE:
+        if not cname.exists():
+            report.error("CNAME", "missing — the custom domain stops working")
+        elif cname.read_text(encoding="utf-8").strip() != spec.CNAME:
+            report.error("CNAME", f"says {cname.read_text().strip()!r}, "
+                                  f"expected {spec.CNAME!r}")
+    elif cname.exists():
+        report.error("CNAME", "present while spec.CUSTOM_DOMAIN_LIVE is False — "
+                              "this redirects macrae.github.io to the domain, "
+                              "which still serves WordPress")
+    else:
+        report.note("CNAME", "absent by design; the site serves at "
+                             "macrae.github.io until the domain is cut over")
     if not (root / ".nojekyll").exists():
         report.error(".nojekyll", "missing — Pages will run Jekyll over the tree "
                                   "and silently drop anything starting with _")

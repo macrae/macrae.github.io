@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mana Map — Sean MacRae</title><meta name="description" content="A workbench for designing and measuring Magic: the Gathering Commander decks, built on a 34,900-card embedding atlas and a seeded simulator."><link rel="canonical" href="https://seanmacrae.com/projects/mana-map/"><link rel="stylesheet" href="/site.css?v=505c9ec1"><link rel="alternate" type="application/atom+xml" title="Sean MacRae" href="/feed.xml"><meta property="og:site_name" content="Sean MacRae"><meta property="og:title" content="Mana Map"><meta property="og:description" content="A workbench for designing and measuring Magic: the Gathering Commander decks, built on a 34,900-card embedding atlas and a seeded simulator."><meta property="og:type" content="article"><meta property="og:url" content="https://seanmacrae.com/projects/mana-map/"><meta name="twitter:card" content="summary"></head>
+<body><header class="sm-head"><div class="sm-head-inner"><a class="sm-wordmark" href="/">Sean MacRae</a><nav class="sm-nav"><a href="/writing/">Writing</a><a href="/projects/" aria-current="page">Projects</a><a href="/about/">About</a><a class="sm-depart" href="/mana-map/">Mana Map</a></nav></div></header><main class="sm-trim"><article class="sm-prose"><h1 class="sm-title">Mana Map</h1><p class="sm-dateline"><time datetime="2026-09-22">22 September 2026</time></p><p class="sm-lede">A workbench for designing and measuring Magic: the Gathering Commander decks, built on a 34,900-card embedding atlas and a seeded simulator.</p><p>Mana Map is a workbench for crafting, experimenting on, and analysing Commander
+decks. It is built on one idea: <strong>a claim about a deck is worth what the
+experiment behind it is worth.</strong></p>
+<p>Underneath it there is an embedding pipeline over roughly 34,900 Magic cards —
+two small neural networks, a two-dimensional projection, and an interactive
+atlas you can walk through by relation rather than by search. Two embedding
+spaces do two different jobs: one lays the map out by colour and type, the other
+answers what a card actually <em>does</em>, which is the only one similarity is ever
+read from.</p>
+<p>The centre of it is simulation. A headless, seeded game engine plays the deck
+several hundred times against a fixed table of opponents; a seeded Monte Carlo
+answers the questions that are about a curve rather than a table; and a
+controlled A/B compares two versions of one list on one table. Every figure
+carries its interval, its sample size, and the assumptions it was measured
+under — or it does not get published.</p>
+<p>Three things are worth saying plainly about it.</p>
+<p><strong>Every number is arithmetic you can re-derive.</strong> The pipeline and the analysis
+commands make no calls to a language model at all. Where judgement enters, it is
+labelled as judgement and kept apart from measurement.</p>
+<p><strong>It is honest about what it cannot see.</strong> The simulator’s opponents are an AI,
+the samples are small enough to matter, and a model that has never been taught
+to read a card will report that card as having no effect — which looks identical
+to a card that genuinely does nothing. Each of those is stated wherever a figure
+that depends on it appears.</p>
+<p><strong>It was built for one player.</strong> It is open source so anyone can stand up their
+own bench, not so that anyone else is supported.</p>
+<a class="sm-depart-card" href="/mana-map/">
+<strong>Open the workbench &#8599;</strong>
+<span>The card atlas, the deck pages, and the handbooks — all rendering
+committed artifacts, no server required.</span>
+</a>
+<p>The source is at <a href="https://github.com/macrae/mana-map" rel="noopener" class="sm-external">github.com/macrae/mana-map</a>.</p>
+<ul class="sm-pills"><li><a href="/tags/latent-space/">latent-space</a></li></ul></article></main><footer class="sm-foot"><div class="sm-foot-inner"><span>© 2020–2026 Sean MacRae</span><a href="/feed.xml">Feed</a><a href="https://github.com/macrae" rel="noopener">GitHub</a><a href="mailto:s.mac925@gmail.com">Email</a></div></footer></body>
+</html>

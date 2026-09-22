@@ -2,7 +2,10 @@
 title: "Hyperreality: A Primer"
 slug: hyperreality-a-primer
 date: 2025-03-05
-status: staged
+status: published
+summary: "Baudrillard's simulacra, from ancient maps to influencers and financial markets, and why the copy so often feels more real than the thing."
+category: culture
+tags: [hyperreality, generative]
 wp_id: 3362
 wp_link: "https://seanmacrae.com/hyperreality-a-primer/"
 wp_excerpt: "I encountered the concept of “Hyperreality” through a social media post referencing Jean Baudrillard’s influential work “Simulacra and Simulation.” The poster claimed that today’s internet—saturated with stable diffusion-generated images and large language model-created text—was perfectly prophesied by this French philosopher decades ago. Intrigued, I started reading reviews of the book, which consistently described it as […]"

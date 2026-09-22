@@ -62,14 +62,23 @@ def test_a_script_with_no_noscript_is_caught(tree, corpus):
     assert any("no <noscript>" in e for e in run(tree, corpus).errors)
 
 
-def test_a_missing_cname_is_caught(tree, corpus):
-    (tree / "CNAME").unlink()
-    assert any("CNAME" in e for e in run(tree, corpus).errors)
+def test_a_cname_before_cutover_is_caught(tree, corpus):
+    """A CNAME file IS what tells GitHub the custom domain is live, and from
+    that moment macrae.github.io redirects to seanmacrae.com -- which still
+    serves WordPress. Shipping it early takes the preview down."""
+    from sitegen import spec
+    assert not spec.CUSTOM_DOMAIN_LIVE, "cutover has happened; update this test"
+    (tree / "CNAME").write_text("seanmacrae.com\n")
+    assert any("still serves WordPress" in e for e in run(tree, corpus).errors)
 
 
-def test_a_wrong_cname_is_caught(tree, corpus):
+def test_a_wrong_cname_is_caught_after_cutover(tree, corpus, monkeypatch):
+    from sitegen import spec, validate
+    monkeypatch.setattr(spec, "CUSTOM_DOMAIN_LIVE", True)
     (tree / "CNAME").write_text("example.com\n")
-    assert any("expected" in e for e in run(tree, corpus).errors)
+    report = validate.Report()
+    validate.check_tree(tree, corpus, report)
+    assert any("expected" in e for e in report.errors)
 
 
 def test_a_missing_nojekyll_is_caught(tree, corpus):

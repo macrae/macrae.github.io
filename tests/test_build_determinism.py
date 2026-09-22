@@ -61,29 +61,63 @@ def test_prune_removes_an_orphan_that_git_diff_would_never_see(corpus):
         shutil.rmtree(root)
 
 
-def test_pinned_files_survive_pruning(corpus):
+def test_nojekyll_survives_pruning(corpus):
+    """Without it, Pages runs Jekyll over the tree and silently drops anything
+    whose name begins with an underscore."""
     root = pathlib.Path(tempfile.mkdtemp())
     try:
         build.write(build.plan(corpus), root=root)
-        assert (root / "CNAME").read_text().strip() == "seanmacrae.com"
         assert (root / ".nojekyll").exists()
     finally:
         shutil.rmtree(root)
 
 
-def test_no_page_carries_a_build_date(corpus):
+def test_the_cname_follows_the_cutover_switch(corpus, monkeypatch):
+    """The CNAME file IS the thing that makes the custom domain live, so it
+    must not appear until DNS has moved -- otherwise macrae.github.io
+    redirects to a domain still serving WordPress."""
+    from sitegen import spec
+    root = pathlib.Path(tempfile.mkdtemp())
+    try:
+        build.write(build.plan(corpus), root=root)
+        assert not (root / "CNAME").exists(), "CNAME shipped before cutover"
+
+        monkeypatch.setattr(spec, "CUSTOM_DOMAIN_LIVE", True)
+        build.write(build.plan(corpus), root=root)
+        assert (root / "CNAME").read_text().strip() == spec.CNAME
+    finally:
+        shutil.rmtree(root)
+
+
+def test_the_page_chrome_carries_no_date_at_all(corpus):
     """A page stamped with 'now' changes on every build and destroys the
-    byte-identical rebuild claim."""
-    import datetime
-    today = datetime.date.today().isoformat()
+    byte-identical rebuild claim.
+
+    SCOPED TO THE CHROME, and the scoping is the point. The first version of
+    this test searched whole pages for today's date and failed the moment a
+    project page was legitimately dated today -- a check firing on correct
+    data, which is worse than no check. An essay may say any date it likes;
+    the furniture around it may say none.
+
+    The clock is caught properly in two other places: test_spec asserts via
+    the AST that no module calls .today()/.now(), and the two-build
+    comparison above catches any nondeterminism whatever its source.
+    """
+    import re
     root = pathlib.Path(tempfile.mkdtemp())
     try:
         files = _build(root, corpus)
         checked = 0
         for name, blob in files.items():
-            if name.endswith((".html", ".xml")):
-                assert today.encode() not in blob, f"{name} contains today's date"
-                checked += 1
-        assert checked >= 10
+            if not name.endswith(".html"):
+                continue
+            html = blob.decode("utf-8")
+            head = html[html.index("<head>"):html.index("</head>")]
+            foot = html[html.index('<footer'):]
+            for region, label in ((head, "head"), (foot, "footer")):
+                found = re.search(r"\d{4}-\d{2}-\d{2}", region)
+                assert not found, f"{name}: a date in the {label}: {found.group()}"
+            checked += 1
+        assert checked >= 10, f"only {checked} pages checked"
     finally:
         shutil.rmtree(root)

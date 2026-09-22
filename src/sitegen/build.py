@@ -92,13 +92,21 @@ def write(pages, root=PUBLISH, prune=True):
             path.write_bytes(blob)
         written.append(rel)
 
-    # The two files nothing generates and whose loss takes the site down.
+    # Without .nojekyll, Pages runs Jekyll over the tree and silently drops
+    # anything whose name starts with an underscore.
     (root / ".nojekyll").write_text("", encoding="utf-8")
-    (root / "CNAME").write_text(spec.CNAME + "\n", encoding="utf-8")
+    # CNAME only once the domain is actually cut over -- see spec.py.
+    cname = root / "CNAME"
+    if spec.CUSTOM_DOMAIN_LIVE:
+        cname.write_text(spec.CNAME + "\n", encoding="utf-8")
+    elif cname.exists():
+        cname.unlink()
 
     removed = []
     if prune:
         keep = set(pages) | set(spec.PINNED)
+        if not spec.CUSTOM_DOMAIN_LIVE:
+            keep.discard("CNAME")
         for path in sorted(p for p in root.rglob("*") if p.is_file()):
             rel = str(path.relative_to(root))
             if rel not in keep:

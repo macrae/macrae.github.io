@@ -90,8 +90,12 @@ class Corpus:
         return {k: tuple(v) for k, v in sorted(out.items())}
 
     def by_tag(self):
+        # ALL entries, not just essays: a tag page at /tags/<tag>/ indexes
+        # anything carrying that tag, and a project whose tag had no page
+        # would link into a void. Categories deliberately do NOT work this
+        # way -- they live under /writing/ and index writing only.
         out = {}
-        for e in self.essays:
+        for e in self.all_entries:
             for t in e.tags:
                 out.setdefault(t, []).append(e)
         return {k: tuple(v) for k, v in sorted(out.items())}

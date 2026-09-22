@@ -78,6 +78,17 @@ PINNED = ("CNAME", ".nojekyll")
 
 CNAME = "seanmacrae.com"
 
+# THE CUTOVER SWITCH, and it is a switch rather than a chore for one reason:
+# committing a CNAME file is what TELLS GitHub the custom domain is live, and
+# from that moment https://macrae.github.io/ stops serving this site and
+# redirects to https://seanmacrae.com/ instead. While DNS still points at
+# Bluehost that redirect lands on the old WordPress site, so shipping the
+# CNAME early does not just fail to help -- it takes the preview down.
+#
+# Flip this to True as step 2 of the cutover, AFTER the DNS records point at
+# GitHub Pages, and commit the CNAME file that appears.
+CUSTOM_DOMAIN_LIVE = False
+
 # ------------------------------------------------------- closed vocabularies
 
 # PROVISIONAL until curation (plan Phase 3). The WordPress taxonomy is not

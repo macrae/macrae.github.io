@@ -2,7 +2,10 @@
 title: Restoration of Original Drawings from Comic Book Covers
 slug: restoration-of-original-drawings-from-comic-book-covers
 date: 2020-05-24
-status: staged
+status: published
+summary: "A character classifier that looked accurate turned out to be reading logos and barcodes rather than drawings. Building a network to strip them away."
+category: machine-learning
+tags: [comics, image-restoration, fast-ai]
 wp_id: 2171
 wp_link: "https://seanmacrae.com/restoration-of-original-drawings-from-comic-book-covers/"
 wp_excerpt: "In my last write-up on multi-label character classification, I discovered that the model precision was spurious. It wasn’t relying on drawing-related features to classify characters, things like Superman’s “S” or Aquaman’s Trident. Instead, the neural net was keying off non-drawing related entities; things like the series title, publisher logo, or price and on-sale-date inset. The highlighted […]"

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Inverse Modeling COVID-19 — Sean MacRae</title><meta name="description" content="Fitting an SEIR epidemiological model to case data by inverse modelling, and a deliberate refusal to forecast anything with it."><link rel="canonical" href="https://seanmacrae.com/inverse-modeling-covid-19/"><link rel="stylesheet" href="/site.css?v=505c9ec1"><link rel="alternate" type="application/atom+xml" title="Sean MacRae" href="/feed.xml"><meta property="og:site_name" content="Sean MacRae"><meta property="og:title" content="Inverse Modeling COVID-19"><meta property="og:description" content="Fitting an SEIR epidemiological model to case data by inverse modelling, and a deliberate refusal to forecast anything with it."><meta property="og:type" content="article"><meta property="og:url" content="https://seanmacrae.com/inverse-modeling-covid-19/"><meta name="twitter:card" content="summary"></head>
+<body><header class="sm-head"><div class="sm-head-inner"><a class="sm-wordmark" href="/">Sean MacRae</a><nav class="sm-nav"><a href="/writing/" aria-current="page">Writing</a><a href="/projects/">Projects</a><a href="/about/">About</a><a class="sm-depart" href="/mana-map/">Mana Map</a></nav></div></header><main class="sm-trim"><article class="sm-prose"><h1 class="sm-title">Inverse Modeling COVID-19</h1><p class="sm-dateline"><time datetime="2020-03-31">31 March 2020</time> &middot; <a href="/writing/data-science/">Data Science</a> &middot; revised May 2020</p><p class="sm-lede">Fitting an SEIR epidemiological model to case data by inverse modelling, and a deliberate refusal to forecast anything with it.</p><h3 id="introduction">Introduction<a class="sm-anchor" href="#introduction" aria-label="Link to this section">¶</a></h3><p>I have mixed feelings about Data Scientists sharing ad-hoc COVID-19 analyses and models across social media.</p>
+<p>On the one hand, I’ve seen people fit exponential curves through the data and extrapolate it out a month, giving no consideration to how a virus actually spreads through a population, or people using AutoML (autonomous machine learning) to train models that evaluate wellbut don’t deliver any insight or actionable findings.</p>
+<p>On the other hand, I’ve come across many compelling data visualizations and statistical models that effectively communicate the impact of <a href="https://www.theatlantic.com/family/archive/2020/03/coronavirus-what-does-social-distancing-mean/607927/" rel="noopener" class="sm-external">social distancing</a>, like this nifty simulation by the <a href="https://www.washingtonpost.com/graphics/2020/world/corona-simulator/" rel="noopener" class="sm-external">Washington Post</a>, or this <a href="https://towardsdatascience.com/social-distancing-to-slow-the-coronavirus-768292f04296" rel="noopener" class="sm-external">article</a> by Christian Hubbs that uses an epidemiological model to visualize flattening of the curve.</p>
+<p>Considering the state of the world, I wanted to learn more about how to properly make sense of this data, so while in quarantine with my wife and two kids, I read up on epidemiological models and tried applying my learnings to <a href="https://coronavirus.jhu.edu/" rel="noopener" class="sm-external">John Hopkins University’s</a> open COVID-19 dataset.</p>
+<p>My intent here is for my own edification. I will not extrapolate any findings or make predictions about the final number of confirmed cases or deaths. I don’t claim to be an expert in this field, and none of this has been peer reviewed yet, so please question every bit of it.</p>
+<h2 id="summary">Summary<a class="sm-anchor" href="#summary" aria-label="Link to this section">¶</a></h2><p>By modeling the number of COVID-19 infections over time with an SEIR epidemiological model, I was able to estimate population and system dynamic parameters, such as 1) contact rate between individuals, 2) transmission probability of the virus, 3) reproductive rate of the virus, 4) incubation rate (or, time from exposure to becoming infectious), and 5) recovery rate (or, time from infection to recovery).</p>
+<p>Using only the total number of COVID-19 infections, the model gives the following estimates of the epidemic as  it occurred in China:</p>
+<ol>
+<li><strong>Contact rate</strong> = Between 7 and 10 people, depending on the transmission rate.</li>
+<li><strong>Infectious period</strong> = 14 days</li>
+<li><strong>Incubation period</strong> = 3.5 days</li>
+<li><strong>Reproductive rate</strong> = 7.1</li>
+</ol>
+<hr />
+<p>According to the chief epidemiologist of the <a href="https://www.the-hospitalist.org/hospitalist/article/218769/coronavirus-updates/covid-19-update-transmission-5-or-less-among-close" rel="noopener" class="sm-external">Chinese Centers for Disease Control and Prevention</a>, at the outset of the epidemic, the transmission rate of COVID-19 was 10% among family members and 1%-5% among people who came in close contact with infected patients. Assuming a transmission rate somewhere between 5%-10%, an infected person would need to <strong>come in close contact</strong> <strong>with between 7 and 10 people per day.</strong></p>
+<p>The estimated <strong>infectious period</strong> <strong>of 14 days</strong> aligns reasonably well with the of the CDC’s upper-bound of the time that it takes a person to become symptomatic (between 2 and 14 days), which was a nice result to get.</p>
+<p>The estimated <strong>incubation period</strong> <strong>of 3.5 days</strong> is a measure I cannot find evidence to support or refute. If you happen to know of any research on the incubation rate of COVID-19, please reach out to me.</p>
+<p>The estimated <strong>reproductive rate</strong> <strong>of 7.1</strong>is nearly three times what the CDC estimates. I haven’t been able to resolve this discrepancy, yet interestingly, I found an article from the <a href="https://academic.oup.com/jtm/advance-article/doi/10.1093/jtm/taaa030/5766334" rel="noopener" class="sm-external">Journal of Travel Medicine</a> that measured the reproductive rate (without any interventions) on the Diamond Princess Cruise Ship at a whopping 14.8! The number was revised to 1.8 after including interventions like isolation and quarantine – and so I suspect my model is simply more naive than what the professionals are using.</p>
+<h2 id="the-seir-model">The SEIR Model<a class="sm-anchor" href="#the-seir-model" aria-label="Link to this section">¶</a></h2><p>SEIR stands for <strong>S</strong>usceptible, <strong>E</strong>xposed, <strong>I</strong>nfected, <strong>R</strong>ecovered. The model is described by the rates of change in which individuals move from, at first being susceptible to a virus, to exposed, then infected, and finally recovered.</p>
+<p><img src="media/SEIR-SEIRS.webp" alt="" width="837" height="205" loading="lazy" decoding="async"></p>
+<p><img src="media/SEIR-1.webp" alt="" width="528" height="255" loading="lazy" decoding="async"></p>
+<p>Equations <em>1 – 4</em> describe the rate of change for each category. If we want to calculate S, E, I, or R at some time <em>t</em>, then we need to solve a set of differential equations. Note that a model defined by a set of differential equations is conditioned by the initial values of S, E, I, and R at time = 0.</p>
+<p>In addition to the initial conditions, three parameters define the rates of change between patient condition categories in the model.</p>
+<ul>
+<li><em>β</em> is the <em>transmission rate</em></li>
+<li>γ is the <em>recovery rate</em></li>
+<li>α is the_incubation rate (note, the notation I will use for this parameter is_𝛿)</li>
+</ul>
+<hr />
+<p>To calculate <em>β</em>, γ, and 𝛿 we need to make four assumptions about the dynamics between a population and the virus:</p>
+<ol>
+<li>Contact rate between individuals,</li>
+<li>Transmission probability of the virus upon contact,</li>
+<li>The infectious period of the virus within an individual</li>
+<li>The latent period of the virus, or, the time from when a person contracts the virus to when they become infectious.</li>
+</ol>
+<p>If we make some assumptions about these four measures, then we can calculate model parameters <em>β</em>, γ, and 𝛿 as:</p>
+<hr />
+<pre><code>beta = contact_rate * transmission_probability
+gamma = 1 / infectious_period
+delta = 1 / latent_period
+</code></pre><hr />
+<p>An interesting parameter that falls out based on our assumptions is R0 (R naught), the <em>reproductive number</em>. It estimates the number of secondary cases that stem from a single infected individual. For example, if R0 is two, then each infected person infects about two other people before recovering. The reproductive number is essentially a measure of virality and how quickly a virus can spread within a population.</p>
+<p>Depending upon the epidemiological model, the method to calculate R0 varies, but for the relatively straightforward model we are using it generalizes nicely to:</p>
+<hr />
+<pre><code>R0 = beta / gamma
+</code></pre><hr />
+<p>Many of the initial conditions and model parameters cannot be measured, or they may be completely unknowable. For example, the John Hopkins data has “confirmed cases” (e.g. “infected individuals”), but it does not have “susceptible” or “exposed” individuals, because we can’t measure those things in practice. Similarly, we may have some research that supports a strong belief about the infectious period, because that measurement is better suited to a controlled experiment. Still, something like the transmission probability may be a factor of many different social or environmental causes and vary from region to region. In essence, somethings, we can only have a belief or make an assumption about.</p>
+<h2 id="inverse-modeling-covid-19">Inverse Modeling COVID-19<a class="sm-anchor" href="#inverse-modeling-covid-19" aria-label="Link to this section">¶</a></h2><p>The hypothesis I want to test is that the number of infected individuals in China can be described over time using an SEIR model. But what if instead of <em>working forward</em> by making some (possibly arbitrary) assumptions about initial conditions and model parameters, we <em>worked backward</em> by deriving the initial conditions and optimal set of model parameters that best describe some data?</p>
+<p><img src="media/covid-19_infected.webp" alt="" width="563" height="586" loading="lazy" decoding="async"></p>
+<p>A quick plot of infected individuals by the three countries that are making COVID-19 headlines shows how the virus has spread. At any given time, different countries exist in different parts of the “infection curve.” Since patient zero was in Wuhan, China, it makes sense that a complete curve is from China, where the spread of the virus has, <em>based on available data</em>, plateaued.</p>
+<p>Since the goal is to identify optimal model parameters (<em>β</em>, γ, and 𝛿) that fit a COVID-19 infection curve, I will limit this analysis to China only, since it represents the most complete infection curve.</p>
+<h2 id="preliminary-research"><strong>Preliminary Research</strong><a class="sm-anchor" href="#preliminary-research" aria-label="Link to this section">¶</a></h2><p>Having formulated the hypothesis that the infection curve of COVID-19 in China can be described using an SEIR model, I started researching how others have solved similar problems. I don’t want to reinvent the wheel, so I started Googling things like “inverse modeling differential equations.” Luckily for me, I stumbled upon an R library named <a href="https://cran.r-project.org/web/packages/FME/vignettes/FME.pdf" rel="noopener" class="sm-external">FME</a> that does precisely that! From one of their R vignettes:</p>
+<p><em>“Mathematical simulation models are commonly applied to analyze experimental or environmental data and eventually to acquire predictive capabilities. Typically these models depend on poorly defined, unmeasurable parameters that need to be given a value. Fitting a model to data, so-called inverse modeling, is often the sole way of finding reasonable values for these parameters. There are many challenges involved in inverse model applications, e.g., the existence of non-identifiable parameters, the estimation of parameter uncertainties, and the quantification of the implications of these uncertainties on model predictions.”</em></p>
+<p>Well, that’s what I want to do. Perfect!</p>
+<p>Having identified my hypothesis and a library that supports the task, it’s time to blow the dust of my R Studio install and start modeling!</p>
+<h2 id="model-definition">Model Definition<a class="sm-anchor" href="#model-definition" aria-label="Link to this section">¶</a></h2><p>The first step is to define an SEIR function consistent with the model described above.</p>
+<hr />
+<pre><code>SEIR &lt;- function (pars, S_0 = 120000, E_0 = 3000, I_0 = 500, R_0 = 0) {
+
+  derivs &lt;- function (time, y, pars) {
+  with (as.list(c(pars, y)), {
+      dS &lt;- (-beta * S * I)
+      dE &lt;- (beta * S * I) - (delta * E)
+      dI &lt;- (delta * E) - (gamma * I)
+      dR &lt;- (gamma * I)
+
+  return(list(c(dS, dE, dI, dR), infected = I * N))
+  })
+  }
+
+  # calc. total population
+  N &lt;- S_0 + E_0 + I_0 + R_0
+
+  # initial conditions
+  y &lt;- c(S = S_0/N, E = E_0/N, I = I_0/N, R = R_0/N)
+
+  times &lt;- seq(0, 58, by=1)
+  out &lt;- ode(y = y, parms = pars, times = times, func = derivs)
+
+  as.data.frame(out)
+  }
+</code></pre><hr />
+<p>The <code>SEIR</code> function is defined with some initial conditions, <code>S_0, E_0, I_0, R_0</code>, and an object <code>derivs</code> containing the derivatives of variables S, E, I, and R with respect to time.</p>
+<p>The heavy lifting is performed by the <code>ode</code> method, which stands for “ordinary differential equation.” It takes some dependent variable <code>y</code> (here it is the incidence rates of S, E, I, and R), the derivative of <code>y</code> with respect to time, some model parameters (<em>β</em>, γ, 𝛿), and a sequence of times. The set of differential equations is then solved, and we return a dataframe of all S, E, I, R incidence rates over time.</p>
+<h2 id="parameter-optimization-with-fme"><strong>Parameter Optimization with FME</strong><a class="sm-anchor" href="#parameter-optimization-with-fme" aria-label="Link to this section">¶</a></h2><p>To run the optimization algorithm and find an optimal set of model parameters, we need to first set some, e.g., any parameters. These assumptions are just the starting point for the optimization algorithm; they are not that important.</p>
+<hr />
+<pre><code># population &amp; virus assumptions
+contact_rate = 10                     # number of contacts per day
+transmission_probability = 0.10       # transmission probability
+infectious_period = 5                 # infectious period
+latent_period = 2                     # latent period
+
+# beta (tranmission rate), gamma (recovery rate), and delta (incubation rate)
+beta_value = contact_rate * transmission_probability
+gamma_value = 1 / infectious_period
+delta_value = 1 / latent_period
+
+# Ro (reproductive rate)
+Ro = beta_value / gamma_value
+
+# model hyperparameters
+pars = c(beta = beta_value, gamma = gamma_value, delta = delta_value)
+</code></pre><hr />
+<p>Lastly, we need to define the cost function relating the model parameters to the model output. The FME library has a <code>modcost</code> function that handles updating the residual error for each iteration of the optimization run.</p>
+<hr />
+<pre><code>SEIRcost &lt;- function(pars) {
+  out &lt;- SEIR(pars = pars)
+  return(modCost(model = out, obs = ChinaInfected, err = &quot;sd&quot;))
+  }
+</code></pre><p>The FME function <code>modFit</code> does a lot of sophisticated optimization under the hood. If you’re interested, check out their vignettes for more information; the authors have written them very well. Luckily for me, their API is as simple as:</p>
+<hr />
+<pre><code>Fit &lt;- modFit(f = SEIRcost, p = pars)
+</code></pre><hr />
+<p>And that’s it! We’ve written all the code we need to inversely model a set of optimal SEIR parameters to fit the observed infection curve for China. When we call <code>modFit</code> on <code>SEIRcost</code> with some initial parameters, <code>pars</code>, the algorithm will optimize parameters <em>β</em>, γ, 𝛿 in such a way to minimize the error between our SEIR model and the following data points:</p>
+<p><img src="media/infected_china.webp" alt="" width="563" height="586" loading="lazy" decoding="async"></p>
+<p>So how well does an SEIR model the COVID-19 infection curve for China? Below is a graph comparing the initial curve, based on some arbitrary assumptions, to the fit curve, after parameter optimization. Visually, the fit curve does a decent job of describing the observed data. It’s a little underestimated at the peak and overestimated at the tail, but it appears to do a pretty good job.</p>
+<p><img src="media/seir_initial_v_fitted.webp" alt="" width="563" height="586" loading="lazy" decoding="async"></p>
+<p>To retrieve the parameter values of the fit curve, we call <code>coef</code>.</p>
+<pre><code>coef(Fit)
+
+beta       gamma       delta
+0.50510    0.07098     0.28953
+</code></pre><p>And there we have it, the parameter values of <em>β</em>, γ, 𝛿 that give an optimal SEIR model on China’s confirmed COVID-19 infections data.</p>
+<h2 id="reasoning-about-model-parameters">Reasoning about Model Parameters<a class="sm-anchor" href="#reasoning-about-model-parameters" aria-label="Link to this section">¶</a></h2><p>With a set of optimal parameters <em>β</em>, γ, and 𝛿 identified, we can now reason about model assumptions that we otherwise would have had to rely on some combination of research, intuition, or good-old-fashioned guessing to set.</p>
+<p><strong>Beta</strong></p>
+<p>Recall that <em>β</em> is the transmission rate. It is calculated as the product of the contact rate between people and the probability of virus transmission from an infected person to a susceptible person, upon contact.</p>
+<p>With an estimate of <em>β</em> = 0.505, we can explore the related contact rates at different transmission probabilities. The relationship between these two variables is plotted below, giving a visual indication of the tradeoff between how many people the average person comes into contact with as it relates to the virus’s likelihood of being transmitted. It’s basically the infectious force of the virus at <em>β</em> = 0.505 across two dimensions that are very challenging to measure in practice.</p>
+<figure><img alt="" src="media/infectious_force.webp"/>
+<p> </p>
+<figcaption>If the transmission probability is 5%, or about 1 out of every 20 people exposed to an infected person also gets infected, then the average contact rate would need to be about ten people to generate an infection curve like the one we see for China.</figcaption>
+</figure>
+<p><strong>Gamma</strong></p>
+<p>The recovery rate, γ, is defined as:</p>
+<hr />
+<pre><code>gamma = 1 / infectious_period
+</code></pre><hr />
+<p>Since we have an estimate that γ = 0.071, we can solve for the infectious period, or, for how long an infected individual is contagious. Solving for the infectious period, we estimate that an individual is contagious for approximately 14 days. This estimate is well-aligned with the upper-bound of the CDC’s estimates of 2 – 14 days for a person to show symptoms of COVID-19.</p>
+<p><strong>Delta</strong></p>
+<p>The incubation rate, 𝛿, or the rate at which an exposed individual becomes infectious, is defined as:</p>
+<hr />
+<pre><code>delta_value = 1 / latent_period
+</code></pre><hr />
+<p>Solving for the latent period using 𝛿 = 0.290, we estimate that a susceptible individual could be exposed to COVID-19, but not become infectious for more than three days.</p>
+<p><strong>Reproductive Number</strong></p>
+<p>The model that we fit estimates <em>β</em> = 0.505 and γ = 0.071, which yields an R0 of 7.1, more than three times greater than what most health organizations and academic researchers estimate it to be.</p>
+<h2 id="parameter-sensitivity-analysis">Parameter Sensitivity Analysis<a class="sm-anchor" href="#parameter-sensitivity-analysis" aria-label="Link to this section">¶</a></h2><p>FME contains a handy function called <code>sensFun</code> that estimates the sensitivity of the model output (infections) relative to the parameter values.</p>
+<p>When applied to the observed data, these sensitivity functions help identify important parameters based on the absolute magnitudes of the sensitivity summary values. We can even use this method to rank the importance of parameters on the number of infected individuals in China at some time <em>t</em>.</p>
+<p><img src="media/param_sensitivity.webp" alt="" width="563" height="586" loading="lazy" decoding="async"></p>
+<p>In the very early stages of the epidemic, the incubation rate, 𝛿, has the most significant effect on the spread of the virus. Intuitively this makes sense since this parameter controls the latency between when an infected person contracts the virus and when they become contagious.</p>
+<p>What is interesting is that very shortly after that, <em>β</em>, the transmission rate, overcomes 𝛿 as the parameter of the greatest effect. Intuitively it makes sense that <em>β</em> would have a significant impact on the infection curve, for it is, after all, the rate at which the virus is transmitted.</p>
+<p>Because we’re using a relatively simple SEIR model where people do not reenter the susceptible population after recovering, once the infection curve peaks, both 𝛿 and <em>β</em> drop in their overall effect on the total number of infections. This makes sense considering the pool of potential people that can be exposed to the virus only shrinks over time.</p>
+<p>The recovery rate, γ, has the least effect on the rate at which infections spread, which also makes sense given the model we are using, where people do not reenter the susceptible population once recovered. If we used an epidemiological model where there was a cycle between recovery and susceptibility, then γ would have a more significant effect, because the shorter the recovery time, the faster the susceptible population would be replenished to feed back into the infection curve.</p>
+<p>The below graph shows the correlation between parameter sensitivities. We see that generally, they are positively correlated, meaning that the parameters change in similar directions as it relates to their effect on the number of infected people. For example, at the beginning of the epidemic, both 𝛿 and <em>β</em> have an increasing effect on the spread of the virus. Once it reaches a critical capacity, they then both have a diminishing effect.</p>
+<p><img src="media/param_sensitivity_cor.webp" alt="" width="563" height="586" loading="lazy" decoding="async"></p>
+<h2 id="bayesian-methods"><strong>Bayesian Methods</strong><a class="sm-anchor" href="#bayesian-methods" aria-label="Link to this section">¶</a></h2><p>Having identified a set of optimal, discrete parameters, I will now explore the data-dependent probability distribution of the parameter space. We will estimate the probability distribution around each parameter (the marginal probability) as well as the probability distributions between parameter estimates (the joint probabilities).</p>
+<h3 id="mcmc">MCMC<a class="sm-anchor" href="#mcmc" aria-label="Link to this section">¶</a></h3><p>The function <code>modMCMC</code> implements a Markov chain Monte Carlo (MCMC) method to sample from probability distributions by constructing a Markov chain with the desired distribution, and building a posterior distribution about the parameter space.</p>
+<hr />
+<pre><code>MCMC &lt;- modMCMC(f = SEIRcost, p = Fit$par, niter = 2000, jump = cov0,
+                var0 = var0, wvar0 = 0.1, updatecov = 50)
+</code></pre><hr />
+<p>Calling <code>pairs(MCMC, nsample = 1000)</code> on the MCMC object yields a pair plot showing the pairwise relationship between parameter values.</p>
+<figure><img alt="" src="media/mcmc_param_estimates.webp"/>
+<p> </p>
+<figcaption>The pairwise relationship is shown in the lower panels, the correlation coefficients in the upper panel, and the marginal distribution for each parameter on the diagonal.</figcaption>
+</figure>
+<p>The marginal probabilities estimate the range and likelihood of values for each parameter. You can see that <em>β</em> is likely to range anywhere from 0.40 to 0.65, but is most likely near 0.50, while γ is likely constrained to a range of somewhere between 0.068 and 0.074.</p>
+<p>The strong negative correlation between <em>β</em> and 𝛿 is a product of their proximity in the SEIR flow diagram and a consequence of the tradeoff between the rate at which a virus is transmitted, and the time it takes for a person to become infectious. To fit a curve through the observed data, the higher the transmission rate, the longer the virus can incubate, but as the transmission rate drops, the incubation rate needs to increase if we are to still to fit the curve.</p>
+<h2 id="final-seir-model">Final SEIR Model<a class="sm-anchor" href="#final-seir-model" aria-label="Link to this section">¶</a></h2><p>By inversely modeling a system of differential equations and using Bayesian methods to construct a posterior belief about the likelihood of possible parameter values, a final SEIR model emerges.</p>
+<p>The below graph shows the rate of incidence of susceptibles, exposed, infected, and recovered individuals over time in China, with 90% confidence bounds.</p>
+<figure><img alt="" src="media/china_seir_fitted.webp"/>
+<p> </p>
+<figcaption><span data-preserver-spaces="true" style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">Note the most uncertainty in this model is about the </span><strong style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">E</strong><span data-preserver-spaces="true" style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">xposed incidence rate. My intuition is that the </span><strong style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">S</strong><span data-preserver-spaces="true" style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">usceptible, </span><strong style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">I</strong><span data-preserver-spaces="true" style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">nfected, and </span><strong style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">R</strong><span data-preserver-spaces="true" style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">ecovered rates become relatively well defined given the shape of the infection curve we are fitting a model against. The </span><strong style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">E</strong><span data-preserver-spaces="true" style="color: #0e101a; background-position: initial; margin-top: 0pt; margin-bottom: 0pt;">xposed rate, however, has a larger potential for a tradeoff between things like contact rate, transmission rate, and incubation rate, which creates latency between exposure and becoming infectious allowing for many more potential exposure scenarios that would still adequately describe the data.</span></figcaption>
+</figure>
+<ul class="sm-pills"><li><a href="/tags/covid-19/">covid-19</a></li></ul></article></main><footer class="sm-foot"><div class="sm-foot-inner"><span>© 2020–2026 Sean MacRae</span><a href="/feed.xml">Feed</a><a href="https://github.com/macrae" rel="noopener">GitHub</a><a href="mailto:s.mac925@gmail.com">Email</a></div></footer></body>
+</html>

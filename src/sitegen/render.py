@@ -46,9 +46,9 @@ def _fragment_html(corpus, name):
     return html_out
 
 
-def _dateline(entry):
+def _dateline(entry, link_category=True):
     bits = [f'<time datetime="{esc(entry.date)}">{esc(human_date(entry.date))}</time>']
-    if entry.category:
+    if entry.category and link_category:
         bits.append(f'<a href="{esc(spec.url_for("category", category=entry.category))}">'
                     f'{esc(spec.CATEGORY_LABELS[entry.category])}</a>')
     if entry.meta.get("updated"):
@@ -99,7 +99,9 @@ def render_essay(corpus, entry, check_internal=None):
 def render_project(corpus, entry, check_internal=None):
     body = (f'<article class="sm-prose">'
             f'<h1 class="sm-title">{esc(entry.title)}</h1>'
-            + _dateline(entry)
+            # No category link: categories are a WRITING taxonomy living under
+            # /writing/, and a project does not belong in one.
+            + _dateline(entry, link_category=False)
             + (f'<p class="sm-lede">{esc(entry.meta["summary"])}</p>'
                if entry.meta.get("summary") else "")
             + _body_html(entry, check_internal)
@@ -115,7 +117,7 @@ def render_project(corpus, entry, check_internal=None):
 
 def _entry_row(entry):
     meta = [f'<time datetime="{esc(entry.date)}">{esc(month_year(entry.date))}</time>']
-    if entry.category:
+    if entry.category and entry.kind == "essay":
         meta.append(f'<a href="{esc(spec.url_for("category", category=entry.category))}">'
                     f'{esc(spec.CATEGORY_LABELS[entry.category])}</a>')
     summary = entry.meta.get("summary") or ""
