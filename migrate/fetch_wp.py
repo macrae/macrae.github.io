@@ -296,6 +296,38 @@ class Capture:
         print(f"  {ok} downloaded, {skipped} already present, {len(lib)} in library")
         assert ok + skipped >= MEDIA_REACHABLE - 5, "too few media files captured"
 
+    def qlcache(self):
+        """The QuickLaTeX equation PNGs.
+
+        These are NOT needed to convert the posts: every one carries its LaTeX
+        source in its own alt attribute, and the converter recovers that
+        instead, which is strictly better than a bitmap. They are captured
+        anyway because they are the only evidence of what the rendered
+        equations actually looked like, and the whole corpus is about 70 KB.
+
+        They live in wp-content/ql-cache/ -- a PLUGIN CACHE, not the media
+        library -- so nothing that enumerates /wp/v2/media will ever find them,
+        and the wget mirror misses them too because every reference goes
+        through Photon on another host.
+        """
+        urls = set()
+        for post in self.posts():
+            for src in re.findall(r'<img[^>]+src="([^"]+)"', post["content"]["rendered"]):
+                u = un_photon(src.replace("&#038;", "&"))
+                if "/ql-cache/" in u:
+                    urls.add(u)
+        print(f"  {len(urls)} distinct equation images")
+        got = 0
+        for u in sorted(urls):
+            name = Path(urlparse(u).path).name
+            try:
+                self.get(u, ARCHIVE / "media-original" / "_qlcache" / name)
+                got += 1
+            except requests.HTTPError as exc:
+                print(f"  !! {name}: {exc}")
+        assert got >= len(urls) - 2, f"only captured {got} of {len(urls)} equation images"
+        print(f"  {got} captured")
+
     # ----------------------------------------------- the dead external images
 
     def external_urls(self):
@@ -398,16 +430,18 @@ class Capture:
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("phase", nargs="?", default="all",
-                    choices=["all", "api", "rescue", "pages", "feed", "media"])
+                    choices=["all", "api", "rescue", "pages", "feed", "media", "qlcache"])
     ap.add_argument("--force", action="store_true", help="re-download everything")
     args = ap.parse_args()
 
     cap = Capture(force=args.force)
-    order = ["api", "rescue", "pages", "feed", "media"] if args.phase == "all" else [args.phase]
+    order = (["api", "rescue", "pages", "feed", "media", "qlcache"]
+         if args.phase == "all" else [args.phase])
     for phase in order:
         print(f"\n== {phase} ==")
         getattr(cap, {"api": "api", "rescue": "rescue", "pages": "live_pages",
-                      "feed": "feed_and_sitemap", "media": "media"}[phase])()
+                      "feed": "feed_and_sitemap", "media": "media",
+                      "qlcache": "qlcache"}[phase])()
 
     if cap.drift:
         print("\n!! CONTENT DRIFT since the last capture:")

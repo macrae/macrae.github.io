@@ -11,6 +11,10 @@ dependencies = [
   "markdown-it-py==4.0.0",
   "mdit-py-plugins==0.5.0",
   "pygments==2.20.0",
+  # LaTeX -> MathML at BUILD time. The 102 equations in kochs-snowflake were
+  # QuickLaTeX bitmaps on a CDN that dies with Bluehost; MathML renders
+  # natively with no JavaScript, scales, prints, and is readable aloud.
+  "latex2mathml==3.81.1",
 ]
 
 [project.optional-dependencies]
