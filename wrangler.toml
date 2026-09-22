@@ -19,12 +19,10 @@ html_handling = "none"
 
 # The queryable data behind the visualisations. Content does NOT live here --
 # posts stay markdown in git.
-# Create with:  npx wrangler d1 create seanmacrae
-# then paste the id below.
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "seanmacrae"
-# database_id = "PASTE-AFTER-CREATE"
+[[d1_databases]]
+binding = "DB"
+database_name = "seanmacrae"
+database_id = "e79b0641-4b2e-4d07-a636-b41c755b6534"
 
 # Mana Map's artifacts.
 #
