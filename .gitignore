@@ -10,3 +10,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 .DS_Store
+
+# `make preview` output. Staged posts must never reach a deployed tree, and
+# the build refuses to write docs/ with --include-unpublished for the same
+# reason.
+/preview/
