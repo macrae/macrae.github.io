@@ -275,7 +275,9 @@ class Capture:
 
     def media(self):
         lib = json.loads((ARCHIVE / "wp-api" / "media.json").read_text(encoding="utf-8"))
-        assert len(lib) >= FLOORS["media"], f"media library has only {len(lib)}"
+        assert len(lib) >= MEDIA_REACHABLE, (
+            f"media library enumerates only {len(lib)}; {MEDIA_REACHABLE} are "
+            "reachable via REST (see the note in api())")
         ok = skipped = 0
         for m in lib:
             src = m.get("source_url")
