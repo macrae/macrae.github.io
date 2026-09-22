@@ -1,0 +1,8 @@
+# A CRLF checkout would break the byte-identical rebuild gate on every file.
+* text eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+*.gif binary
+*.mp4 binary
+*.mov binary

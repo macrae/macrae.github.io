@@ -1,0 +1,12 @@
+# THE CAPTURE. Never served, never committed.
+# ~250 MB of immutable blobs: git gives nothing for these, and Git LFS is ruled
+# out on the same grounds mana-map rules it out — Pages serves LFS pointers, not
+# content. Two physical copies + MANIFEST.sha256 is the archive strategy.
+# migrate/MIGRATION.md records where those copies live.
+/archive/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.DS_Store
