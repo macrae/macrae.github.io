@@ -116,13 +116,68 @@ async function serveAsset(request, env, path) {
   });
 }
 
+/**
+ * Mana Map's artifacts.
+ *
+ * These ship as ordinary static assets. Cloudflare refuses any single asset at
+ * or over 25 MiB and exactly one file in this corpus is over it --
+ * synergy_graph.json at 26.78 MiB -- so tools/assemble.py stores that one
+ * gzipped and this serves it with `content-encoding: gzip`, which every
+ * browser unpacks transparently. The reader gets 2.28 MiB instead of 26.78,
+ * so the cap is worked around AND the atlas loads faster.
+ *
+ * R2 is still supported and still the better answer if this ever outgrows the
+ * asset limits -- it syncs only what changed instead of re-uploading -- but it
+ * requires a payment method on the account, which is a real cost for something
+ * 217 MiB does not need.
+ */
+async function serveData(request, env, path) {
+  const direct = await env.ASSETS.fetch(request);
+  if (direct.status !== 404) return direct;
+
+  // The compressed form of an oversized artifact.
+  const url = new URL(request.url);
+  url.pathname = path + ".gz";
+  const packed = await env.ASSETS.fetch(new Request(url, request));
+  if (packed.status !== 404) {
+    // DECOMPRESSED HERE, not handed to the browser still compressed.
+    //
+    // The obvious approach -- serve the .gz bytes with `content-encoding:
+    // gzip` -- does not work on Workers: the runtime manages encoding itself
+    // and strips that header, so the browser receives gzip bytes labelled as
+    // JSON and fails. Verified: 2,389,033 bytes arrived with no
+    // content-encoding at all.
+    //
+    // DecompressionStream is native and streaming, so this neither buffers 26
+    // MiB nor burns the 10 ms CPU budget on a JS loop. Cloudflare then applies
+    // its own compression on the way out, so the reader still gets ~2.3 MiB
+    // over the wire -- the same win, arrived at honestly.
+    return new Response(
+      packed.body.pipeThrough(new DecompressionStream("gzip")),
+      {
+        status: packed.status,
+        headers: {
+          "content-type": contentType(path),
+          // Content-addressed by the viz's own ?v= parameter.
+          "cache-control": "public, max-age=31536000, immutable",
+        },
+      },
+    );
+  }
+
+  if (env.DATA) {
+    return serveFromR2(request, env, path.slice("/mana-map/data/".length));
+  }
+  return new Response(`Not found: ${path}\n`, { status: 404 });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = decodeURIComponent(url.pathname);
 
     if (path.startsWith("/mana-map/data/")) {
-      return serveFromR2(request, env, path.slice("/mana-map/data/".length));
+      return serveData(request, env, path);
     }
 
     if (path === "/api" || path.startsWith("/api/")) {
