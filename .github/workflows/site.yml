@@ -1,0 +1,73 @@
+# There is NO deploy step here, deliberately.
+#
+# GitHub Pages serves this repository's docs/ directory straight from `main`
+# in its "deploy from a branch" mode. The rendered HTML is committed, so
+# pushing IS deploying. Adding an Actions-based Pages deploy would quietly
+# take ownership of the URL away from the committed tree and make the
+# byte-diff gate below meaningless.
+name: site
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # depth 1 is correct here. The sibling mana-map repo needs fetch-depth: 0
+      # because it derives artifacts from a git walk; nothing here does, so
+      # don't copy that across.
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - name: Render the site
+        run: make site
+
+      # THESE TWO STEPS ARE BOTH REQUIRED.
+      #
+      # `git diff --exit-code` is blind to UNTRACKED files, so on its own a
+      # brand-new page — which is exactly what adding an essay produces —
+      # builds green in CI and is never committed. The second step closes it.
+      - name: docs/ must match what content/ renders to
+        run: |
+          git diff --exit-code -- docs/ || {
+            echo "::error::docs/ is out of date. Run 'make site' and commit docs/."
+            exit 1
+          }
+
+      - name: no new or orphaned files left behind
+        run: |
+          if [ -n "$(git status --porcelain -- docs/)" ]; then
+            git status --porcelain -- docs/
+            echo "::error::docs/ has uncommitted files. Run 'make site' and commit docs/."
+            exit 1
+          fi
+
+      - name: Validate the rendered tree
+        run: make validate
+
+      - run: make test PYTEST_ARGS=-rs
+
+  # NOT in the blocking gate. The one link this site most wants to be sure of
+  # lives in another repository, and a network check inside a determinism gate
+  # is a flaky gate.
+  links:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: External links, including the mana-map hand-off
+        run: |
+          set +e
+          for u in https://seanmacrae.com/mana-map/ https://github.com/macrae; do
+            code=$(curl -sL -o /dev/null -w '%{http_code}' "$u")
+            echo "$code  $u"
+          done

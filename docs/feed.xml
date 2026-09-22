@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+<title>Sean MacRae</title>
+<subtitle>Data science, mathematics, and things I have been thinking about.</subtitle>
+<link href="https://seanmacrae.com/feed.xml" rel="self"/>
+<link href="https://seanmacrae.com/"/>
+<id>https://seanmacrae.com/</id>
+<updated>1970-01-01T00:00:00Z</updated>
+<author><name>Sean MacRae</name></author>
+</feed>
