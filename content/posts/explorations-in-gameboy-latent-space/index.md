@@ -3,6 +3,9 @@ title: Explorations in GameBoy Latent Space
 slug: explorations-in-gameboy-latent-space
 date: 2023-01-07
 status: staged
+summary: "The Game Boy as IKEA, as Black & Decker, as REI, as punk rock. Walking a text-to-image model through one familiar object in unfamiliar contexts."
+category: culture
+tags: [generative, latent-space]
 wp_id: 3039
 wp_link: "https://seanmacrae.com/explorations-in-gameboy-latent-space/"
 wp_excerpt: "As a parent, finding a few moments of solitude can be challenging. But in these precious moments — when I could be doing something actually productive – I often find myself exploring the vast and mysterious realm of the Midjourney text-to-image Discord server (a Stable Diffusion algorithm). I recently explored the Gameboy’s latent space for […]"

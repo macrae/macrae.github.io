@@ -116,7 +116,7 @@ CATEGORY_LABELS = {
 TAGS = (
     "comics", "covid-19", "evaluation", "fast-ai", "fractals", "generative",
     "hyperreality", "image-restoration", "latent-space", "model-performance",
-    "proof", "scraping", "teams", "time-series",
+    "place", "proof", "satire", "scraping", "teams", "time-series",
 )
 
 STATUSES = ("published", "staged", "archived")

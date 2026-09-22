@@ -3,6 +3,9 @@ title: "The Art of Temporal Data: A Guide to Measuring Model Performance"
 slug: the-art-of-temporal-data-a-guide-to-measuring-model-performance
 date: 2023-07-15
 status: staged
+summary: "When data changes over time, tuning on out-of-time data is peeking into the future. How to split in-time from out-of-time so the evaluation still means something."
+category: data-science
+tags: [time-series, model-performance, evaluation]
 wp_id: 3308
 wp_link: "https://seanmacrae.com/the-art-of-temporal-data-a-guide-to-measuring-model-performance/"
 wp_excerpt: "In machine learning, when we work with data that changes over time, like sales numbers that are recorded every day, it’s important to think carefully about how we use this data to train our models and check how well they’re doing. Think of the model as a person trying to predict the next part of […]"

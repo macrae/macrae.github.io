@@ -3,6 +3,9 @@ title: Forecazol™
 slug: forecazol
 date: 2023-11-22
 status: staged
+summary: "A pharmaceutical advert for a supplement that cures forecasting. Side effects include overfitting, training on the test set, and confusing correlation with causation."
+category: culture
+tags: [satire, generative]
 wp_id: 3321
 wp_link: "https://seanmacrae.com/forecazol/"
 wp_excerpt: "Are you among the 90% of data scientists who struggle with forecasting? Introducing Forecazol™, the revolutionary medical supplement specially formulated for the data science community. [Soft, reassuring music plays in the background] Narrator: “In the world of data science, forecasting is crucial. But for many, it remains a challenge. That’s where Forecazol™ comes in. Our […]"

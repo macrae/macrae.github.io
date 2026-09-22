@@ -3,6 +3,9 @@ title: Honor This Sacred Land
 slug: honor-this-sacred-land
 date: 2024-01-27
 status: staged
+summary: "A viral tweet about fidget spinners, two-thirds of an acre in the East Bay, and a pile of fireplace bricks moved twelve at a time."
+category: culture
+tags: [place]
 wp_id: 3346
 wp_link: "https://seanmacrae.com/honor-this-sacred-land/"
 wp_excerpt: "A viral tweet caught my attention as I scrolled Twitter this week. Thanks to a less-than-stellar search function, I can’t find it now, but it lives rent-free in my head today. It suggests our fixation with things like fidget spinners is due to our biological urge for simple, repetitive tasks. It’s interesting that, like dogs […]"

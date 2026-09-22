@@ -3,6 +3,9 @@ title: Comic Book Character Classification
 slug: classification-of-characters-on-comic-book-covers
 date: 2020-05-01
 status: staged
+summary: "112,000 comic covers scraped from the Grand Comics Database, and a multi-label classifier for the characters drawn on them."
+category: machine-learning
+tags: [comics, fast-ai]
 wp_id: 2056
 wp_link: "https://seanmacrae.com/classification-of-characters-on-comic-book-covers/"
 wp_excerpt: "To hone my understanding of deep learning, and because I think it would be awesome, I’ve had a goal to use neural nets to reason about comic books. Things like classifying characters in a drawing, describing the action sequence of panels, or reading and writing a comic book, are not impossible tasks for a machine […]"

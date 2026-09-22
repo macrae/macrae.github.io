@@ -3,6 +3,9 @@ title: From Data Science to Value Creation – Fostering Scientific Rigor and Or
 slug: from-data-science-to-value-creation-fostering-scientific-rigor-and-organizational-impact
 date: 2024-02-04
 status: staged
+summary: "Technically excellent data scientists are often not being scientific. On hypotheses, the Build-Measure-Learn loop, and organisations that reward the wrong half of the job."
+category: practice
+tags: [teams]
 wp_id: 3353
 wp_link: "https://seanmacrae.com/from-data-science-to-value-creation-fostering-scientific-rigor-and-organizational-impact/"
 wp_excerpt: "It is intriguing to observe that even the most technically proficient data scientists often fall short in their scientific approach. These individuals are undoubtedly skilled in their domains—coding, analytics, quantitative analysis, or statistical inference. They bring a wealth of knowledge and expertise to the table, and there is much to learn from them. However, the […]"
