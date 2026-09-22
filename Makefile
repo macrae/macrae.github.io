@@ -8,7 +8,8 @@ PY   := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 PORT ?= 8000
 
 .DEFAULT_GOAL := help
-.PHONY: help setup site validate test check serve preview migrate clean
+.PHONY: help setup site validate test check serve preview migrate clean \
+        assemble deploy sync-data db
 
 help:  ## Show this help
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -40,6 +41,18 @@ preview:  ## Build EVERYTHING including staged/archived, to preview/ — never d
 	@echo "  filter, not a second code path — a renderer kept behind a flag is"
 	@echo "  a renderer nobody is testing."
 	@echo "  http://localhost:$(PORT)/   (cd preview && python3 -m http.server $(PORT))"
+
+assemble:  ## Build dist/ = the site + mana-map's viz and handbooks
+	$(PY) tools/assemble.py
+
+deploy: site validate assemble  ## Ship to Cloudflare (needs `npx wrangler login`)
+	npx wrangler deploy
+
+sync-data:  ## Push mana-map's 237 MiB of artifacts to R2 (only what changed)
+	$(PY) tools/sync_r2.py
+
+db:  ## Apply the D1 schema
+	npx wrangler d1 execute seanmacrae --remote --file worker/schema.sql
 
 migrate:  ## One-shot WordPress capture + convert. NETWORKED; never in CI.
 	$(PY) migrate/fetch_wp.py all

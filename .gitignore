@@ -15,3 +15,10 @@ __pycache__/
 # the build refuses to write docs/ with --include-unpublished for the same
 # reason.
 /preview/
+
+# Assembled deploy output (tools/assemble.py) — derived from docs/ + mana-map.
+/dist/
+# What has already been pushed to R2, so a re-sync only sends what changed.
+/.r2-state.json
+node_modules/
+.wrangler/

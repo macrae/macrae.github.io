@@ -1,0 +1,37 @@
+name = "seanmacrae-com"
+main = "worker/src/index.js"
+compatibility_date = "2026-09-01"
+
+# The committed static site plus mana-map's viz and handbooks, assembled by
+# tools/assemble.py. NOT mana-map's data/ -- that is 238 MiB with one file over
+# Cloudflare's 25 MiB asset cap, so it lives in R2 and is served by the Worker
+# at /mana-map/data/*, which is the same path the viz's relative links already
+# resolve to.
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "404-page"
+
+# The queryable data behind the visualisations. Content does NOT live here --
+# posts stay markdown in git.
+# Create with:  npx wrangler d1 create seanmacrae
+# then paste the id below.
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "seanmacrae"
+# database_id = "PASTE-AFTER-CREATE"
+
+# Mana Map's artifacts.
+# Create with:  npx wrangler r2 bucket create seanmacrae-data
+[[r2_buckets]]
+binding = "DATA"
+bucket_name = "seanmacrae-data"
+
+[vars]
+GITHUB_REPO = "macrae/macrae.github.io"
+GITHUB_BRANCH = "main"
+# ACCESS_TEAM and ACCESS_AUD are set after the Access application exists.
+# Until they are, /admin refuses every request rather than standing open.
+
+# Secrets, set once and never committed:
+#   npx wrangler secret put GITHUB_TOKEN     a fine-grained PAT, Contents: R/W
