@@ -1,0 +1,28 @@
+[project]
+name = "seanmacrae-com"
+version = "0.1.0"
+description = "seanmacrae.com — a static site that owns its own data"
+requires-python = ">=3.12"
+
+# THESE LIBRARIES PRODUCE COMMITTED BYTES, so they are source, not tooling.
+# A bump that changes one glyph of rendered output turns the byte-diff gate
+# red, which is the system telling the truth. uv.lock is what enforces it.
+dependencies = [
+  "markdown-it-py==4.0.0",
+  "mdit-py-plugins==0.5.0",
+  "pygments==2.20.0",
+]
+
+[project.optional-dependencies]
+# The one-shot migration tool only. Nothing in src/sitegen/ may import these:
+# `make site` must be hermetic, and requests in the dependency graph of the
+# renderer is how a build quietly grows a network call.
+migrate = ["requests==2.33.1", "beautifulsoup4==4.14.2", "pillow==12.2.0"]
+dev = ["pytest==8.4.2"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sitegen"]
