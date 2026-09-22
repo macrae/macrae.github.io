@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Comic Book Character Classification — Sean MacRae</title><link rel="canonical" href="https://seanmacrae.com/classification-of-characters-on-comic-book-covers/"><link rel="stylesheet" href="/site.css?v=505c9ec1"><link rel="alternate" type="application/atom+xml" title="Sean MacRae" href="/feed.xml"><meta property="og:site_name" content="Sean MacRae"><meta property="og:title" content="Comic Book Character Classification"><meta property="og:type" content="article"><meta property="og:url" content="https://seanmacrae.com/classification-of-characters-on-comic-book-covers/"><meta name="twitter:card" content="summary"></head>
+<body><header class="sm-head"><div class="sm-head-inner"><a class="sm-wordmark" href="/">Sean MacRae</a><nav class="sm-nav"><a href="/writing/" aria-current="page">Writing</a><a href="/projects/">Projects</a><a href="/about/">About</a><a class="sm-depart" href="/mana-map/">Mana Map</a></nav></div></header><main class="sm-trim"><article class="sm-prose"><h1 class="sm-title">Comic Book Character Classification</h1><p class="sm-dateline"><time datetime="2020-05-01">1 May 2020</time> &middot; revised May 2020</p><p>To hone my understanding of deep learning, and because I think it would be awesome, I’ve had a goal to use neural nets to reason about comic books. Things like classifying characters in a drawing, describing the action sequence of panels, or reading and writing a comic book, are not impossible tasks for a machine to perform nowadays. Sure, I could have chosen a more manageable project. But, I learn best when invested in the material; therefore, there is no better project for a person who rarely misses visiting <a href="http://www.isotopecomics.com/" rel="noopener" class="sm-external">Isotope Comics</a> every Wednesday.</p>
+<h2 id="eighty-percent-of-data-science-is">Eighty-percent of Data Science Is<a class="sm-anchor" href="#eighty-percent-of-data-science-is" aria-label="Link to this section">¶</a></h2><p>As always the case, before I get to do any fun data science, I have to first procure a dataset that can support training a machine learner for the given task. For any new task, like reasoning about comic books, obtaining a dataset can be a real grind_._</p>
+<p>I spent a couple of months developing (but mostly debugging) a web-scraper to pull comic book covers and metadata from <a href="https://www.comics.org/" rel="noopener" class="sm-external">The Grand Comics Database</a>. Eventually, I had a battle-hardened Python script that could programmatically traverse the site, allowing me to queue up jobs that would pull down thousands of issues with the push of a button.</p>
+<h2 id="meanwhile-back-at-the-hall-of-justice">Meanwhile, back at the Hall of Justice…<a class="sm-anchor" href="#meanwhile-back-at-the-hall-of-justice" aria-label="Link to this section">¶</a></h2><p>Fast forward several months, and after running the web scraper across the majority of publishers in the comics industry, I scraped 112K+ issues with accompanying cover images and metadata.</p>
+<p>The metadata is rich. Everything from the paper stock to the binding, to the number of pages and the on-sale-date, is there. What interests me most are the fields associated with the cover image, the ones prefixed with <code>cover_</code>. These all have the potential to be highly informative labels in a supervised task on the cover image.</p>
+<p><img src="media/Screen-Shot-2020-05-12-at-10.20.04-PM.webp" alt="" width="1026" height="1060" loading="lazy" decoding="async"></p>
+<p>There are 79K issues with a non-empty <code>cover_characters</code> field, identifying which characters are drawn on the cover. There is also information related to artist (<code>cover_pencils</code>, <code>cover_inks</code>, and <code>cover_colors</code>), <code>cover_genre</code>, and <code>cover_synopsis</code>. Here’s an example of a record in the dataset with some metadata.</p>
+<p><img src="media/Screen-Shot-2020-05-15-at-6.29.52-PM.webp" alt="" width="664" height="1010" loading="lazy" decoding="async"></p>
+<pre><code>Pencils: Mark Buckingham
+Colors: Mark Buckingham
+Colors: ? 
+
+Characters: [&#x27;Strange&#x27;, &#x27;The Brilliant One&#x27;] 
+
+Synopsis: Strange searches for the next piece of Earth Magic, the Corel Crab, in the cave of The Brilliant One a Leviathan near Namor&#x27;s Aquaria. On land, Salomâ€š gives us a brief glimpse of her new servant, Wong!
+</code></pre><hr />
+<p>If you want to download the dataset, you can grab it from this public <a href="https://comics-net.s3-us-west-1.amazonaws.com/all_data/covers.tgz" rel="noopener" class="sm-external">s3</a> location, just cite <a href="https://github.com/macrae/comics-net" rel="noopener" class="sm-external">me</a> in anything you publish.</p>
+<h2 id="designing-an-ml-task">Designing an ML Task<a class="sm-anchor" href="#designing-an-ml-task" aria-label="Link to this section">¶</a></h2><p>Next, I need to design a task and train a learner. My intuition is that, of all the metadata, the <code>cover_characters</code> label will have one of the strongest signals to train a supervised learner against the cover image.</p>
+<p>But why start with <code>cover_characters</code> and not <code>cover_pencils</code>, <code>genre</code>, or <code>synopsis</code>? One reason is that it seems more feasible to delineate between Superman and Batman in a drawing than it does to determine if Dan DeCarlo or Curt Swan drew it. This intuition comes from considering the potential features that a learner could key off— many artists, especially those of the same era, share qualities in their work. However, Superman is always qualitatively distinct from Batman, in very consistent and distinct ways.</p>
+<p>Another reason that I prioritized <code>cover_characters</code> as a first attempt is that many other <code>cover_</code> fields, like <code>cover_pencils</code> or <code>cover_colors</code>, don’t have as robust a distribution of labels. For example, the most frequently occurring artist is Gil Kane, with 1,095 covers followed by Jack Kirby with 1,074. Yet, Batman is the most frequently occurring character featured on 5,263 covers, followed by Archie with 4,427.</p>
+<figure class="wp-block-image size-large is-resized"><img alt="" height="395" src="media/Screen-Shot-2020-05-17-at-10.01.55-AM.webp" width="512"/><figcaption>The distribution of Character labels is more robust than other metadata labels.</figcaption></figure>
+<h2 id="the-multiverse">The Multiverse<a class="sm-anchor" href="#the-multiverse" aria-label="Link to this section">¶</a></h2><p>The question now becomes: what characters to include? The total number of unique characters in the dataset is 31K, and it’s <em>very</em> long-tail. Attempting to train a learner to classify all characters is not feasible. So what characters do I target?</p>
+<p>It may help to know that many characters coexist in the same universe in the world of comics. Archie Andrews, Jughead Jones, Betty Cooper, and Veronica Lodge all appear in the “Archie” series. Betty and Veronica also have their own series, aptly named “Betty and Veronica,” in which Archie, Jughead, and a slew of other tertiary characters inhabit. The multiverse theme goes double for Marvel and DC. Both publishers have grown their worlds into all-encompassing universes where Wonder Woman teams up with Detective Chimp, Man-Bat, Swamp Thing and Zatanna to wage war with the mystic arts. Marvel’s Civil War arc is one of the most well-known slugfests to take place in a multiverse, with some covers featuring dozens of characters densely packed into a single frame to let potential buyers know which book to pick up that week.</p>
+<div class="sm-gallery"><figure><img alt="" data-full-url="https://seanmacrae.com/wp-content/uploads/2020/05/jl_dark_3.jpg" data-link="https://seanmacrae.com/?attachment_id=2265" height="524" src="media/jl_dark_3.webp" width="349"/></figure><figure><img alt="" data-full-url="https://seanmacrae.com/wp-content/uploads/2020/05/2945058-www.jpg" data-link="https://seanmacrae.com/?attachment_id=2197" height="1280" src="media/2945058-www.webp" width="846"/></figure></div>
+<hr />
+<p>Characters co-occur within a universe either because of one-shots, team-ups, or cross-over events. But none of this information is explicit in the metadata that I scraped, so before I could start with the fun stuff, once again, it was back to the data grind. Fortunately for me, the good folks who update The Grand Comics Database often include team information in the <code>cover_characters</code> label. It required more regex than I typically enjoy (which is none), but I was able to parse out team names from the <code>cover_characters</code> field. Using team information would allow me to construct a training dataset containing characters that frequently co-occur, which would force the learner to discern nuance between the physical traits of characters.</p>
+<p>After parsing team information from the characters label, this is the number of cover images and character labels for each team.</p>
+<div class="sm-table-scroll"><table><thead>
+<tr>
+<th>Group</th>
+<th># Images</th>
+<th># Labels</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Justice League</td>
+<td>12,445</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Avengers</td>
+<td>7,186</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Spider-Man</td>
+<td>6,231</td>
+<td>25</td>
+</tr>
+<tr>
+<td>X-Men</td>
+<td>5,589</td>
+<td>30</td>
+</tr>
+<tr>
+<td>Archies</td>
+<td>5,550</td>
+<td>23</td>
+</tr>
+<tr>
+<td>Teen Titans</td>
+<td>3,557</td>
+<td>14</td>
+</tr>
+<tr>
+<td>Fantastic Four</td>
+<td>2,897</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Defenders</td>
+<td>2,023</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Legion of Super-Heroes</td>
+<td>1,298</td>
+<td>23</td>
+</tr>
+<tr>
+<td>Justice Society of America</td>
+<td>1,291</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Suicide Squad</td>
+<td>971</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Inhumans</td>
+<td>548</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Guardians of the Galaxy</td>
+<td>378</td>
+<td>5</td>
+</tr>
+<tr>
+<td>New Gods</td>
+<td>338</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Lantern Corps</td>
+<td>805</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Doom Patrol</td>
+<td>188</td>
+<td>10</td>
+</tr>
+</tbody>
+</table></div><p>I included many characters that may not be part of a team, but happen to co-occur frequently alongside certain team members, for example, Lois Lane, Namor, The Joker, Black Canary, etc. Also, Spider-Man isn’t a “team,” I just threw all of the Spider-People (Spider-Man [Peter Parker], Spider-Man [Miles Morales], Spider-Woman, Spider-Gwen, etc.) into one group, because, why not?</p>
+<p>Since the <a href="https://en.wikipedia.org/wiki/Justice_League" rel="noopener" class="sm-external">Justice League</a> characters are associated with the most cover images, I figured I’d start there.</p>
+<h2 id="multi-label-character-classification">Multi-label Character Classification<a class="sm-anchor" href="#multi-label-character-classification" aria-label="Link to this section">¶</a></h2><h3 id="the-dataset">The Dataset<a class="sm-anchor" href="#the-dataset" aria-label="Link to this section">¶</a></h3><p>The Justice League dataset contains 12,445 images, each of 400 x 600 resolution. There are 16 character labels, and an image can have more than one label. This is known as a multi-label task because we need to classify <span class="sm-math"><math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>n</mi></mrow></math></span> of <span class="sm-math"><math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>m</mi></mrow></math></span> possible labels, where <span class="sm-math"><math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mn>1</mn><mi>&</mi><mi>l</mi><mi>t</mi><mi>;</mi><mo>&#x0003D;</mo><mi>n</mi><mi>&</mi><mi>l</mi><mi>t</mi><mi>;</mi><mo>&#x0003D;</mo><mi>m</mi></mrow></math></span>. For example, a cover image may contain only Superman, only Batman, or possibly both.</p>
+<p><img src="media/Screen-Shot-2020-05-16-at-10.46.00-AM-2.webp" alt="" width="1596" height="1586" loading="lazy" decoding="async"></p>
+<hr />
+<pre><code>Train: LabelList (9956 items)
+x: ImageList
+Image (3, 300, 200),Image (3, 300, 200),Image (3, 300, 200),Image (3, 300, 200),Image (3, 300, 200)
+y: MultiCategoryList
+Green Arrow Oliver Queen,Wonder Woman Diana Prince,Batman Bruce Wayne,Batman Bruce Wayne,Flash Barry Allen
+Path: /content/justice_league;
+
+Valid: LabelList (2488 items)
+x: ImageList
+Image (3, 300, 200),Image (3, 300, 200),Image (3, 300, 200),Image (3, 300, 200),Image (3, 300, 200)
+y: MultiCategoryList
+Flash Barry Allen;Cyborg Victor Stone,Wonder Woman Diana Prince,Batman Bruce Wayne,Batman Bruce Wayne,Batman Bruce Wayne
+Path: /content/justice_league;
+</code></pre><hr />
+<p>There are a lot of Batman and Superman images in the above dataset preview. Based on the distribution of character labels, this is not surprising. I will need to be sensitive to this class imbalance when evaluating the model’s performance.</p>
+<div class="sm-table-scroll"><table><thead>
+<tr>
+<th>Character</th>
+<th># Images</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Batman [Bruce Wayne]</td>
+<td>4,939</td>
+</tr>
+<tr>
+<td>Superman [Clark Kent/ Kal-El]</td>
+<td>4,062</td>
+</tr>
+<tr>
+<td>Wonder Woman [Diana Prince]</td>
+<td>1,806</td>
+</tr>
+<tr>
+<td>Flash [Barry Allen]</td>
+<td>1,472</td>
+</tr>
+<tr>
+<td>Green Lantern [Hal Jordan]</td>
+<td>1,024</td>
+</tr>
+<tr>
+<td>Green Arrow [Oliver Queen]</td>
+<td>727</td>
+</tr>
+<tr>
+<td>Aquaman [Arthur Curry]</td>
+<td>677</td>
+</tr>
+<tr>
+<td>Hawkman [Katar Hol/ Carter Hall]</td>
+<td>649</td>
+</tr>
+<tr>
+<td>Catwoman [Selina Kyle]</td>
+<td>579</td>
+</tr>
+<tr>
+<td>Lois Lane</td>
+<td>533</td>
+</tr>
+<tr>
+<td>Martian Manhunter [J’onn J’onzz]</td>
+<td>489</td>
+</tr>
+<tr>
+<td>Joker</td>
+<td>452</td>
+</tr>
+<tr>
+<td>Black Canary [Dinah Laurel Lance]</td>
+<td>442</td>
+</tr>
+<tr>
+<td>Cyborg [Victor Stone]</td>
+<td>417</td>
+</tr>
+<tr>
+<td>Jimmy Olsen</td>
+<td>284</td>
+</tr>
+<tr>
+<td>Hawkgirl [Shayera Thal]</td>
+<td>209</td>
+</tr>
+</tbody>
+</table></div><p>In hindsight, this dataset is flawed for the first attempt at this task. The classes are way too imbalanced. If I could go back and reconfigure the dataset (which I will in a future research spike), I’d limit the character labels to the top 3, maybe 5.</p>
+<h3 id="model-definition">Model Definition<a class="sm-anchor" href="#model-definition" aria-label="Link to this section">¶</a></h3><p>A lot of success in deep learning on image-based tasks is attributed to creating deeper neural networks. The first CNN that outperformed standard machine-learning with hand-tuned features was in 2012. It consisted of 8 layers and was called AlexNet. Today, CNN’s consist of 3 – 12 times the number of layers of AlexNet, the intuition being that subsequent layers learn more complex features. Layers in the front of the network end up learning the building blocks of later layers. The first layers learn to see vertical and horizontal edges. The following layers learn to see geometric shapes like squares and diamonds. Eventually, layers can see features like people’s eyes and cat ears.</p>
+<p>But the deeper a CNN gets, a problem emerges related to how networks learn and weights get updated. Basically, all those chain-rule updates cause the gradient to vanish due to the distance between the loss function and the input layer.</p>
+<figure class="wp-block-image size-large"><img alt="" height="240" src="media/The-architecture-of-Residual-Attention-U-Net-ResNet34-pre-trained-on-the-ImageNet-is.webp" width="850"/><figcaption>Resnet34 Arcitecture</figcaption></figure>
+<p>The novel design element of a ResNet is the skip connection to deal with very deep networks where the gradient may disappear. The residual block was introduced to address the vanishing gradient problem. It’s a simple and powerful concept. As a convolutional network goes deeper, the gradients quickly shrink to zero, and hence no learning occurs. The skip connection in a ResNet allows the gradient to flow backward more readily, acting as a kind of a gate, allowing information to flow through the entire network.</p>
+<h3 id="model-training">Model Training<a class="sm-anchor" href="#model-training" aria-label="Link to this section">¶</a></h3><p>Due to memory constraints, the images were resized to 200 x 300 with a batch size of 32. To keep the original resolution, I could reduce the batch size to something like 16 or 8 – but for now, this is fine. I used the fastai learning rate finder and trained for eight epochs at what seemed like a reasonable learning rate.</p>
+<p><img src="media/Screen-Shot-2020-05-16-at-10.50.04-AM.webp" alt="" width="798" height="536" loading="lazy" decoding="async"></p>
+<p><img src="media/Screen-Shot-2020-05-16-at-10.49.50-AM.webp" alt="" width="1090" height="564" loading="lazy" decoding="async"></p>
+<p>After 8 epochs, the validation loss and accuracy is starting to flatten out. Against the 2,488 cover images in the validation set, I have a 95% accuracy and fbeta score of 0.81. The fbeta is like an f1 score, representing a weighted average of precision and recall.</p>
+<p>I reran it for 3 more epochs with a lower learning rate to see if I could fine-tune it anymore.</p>
+<p><img src="media/Screen-Shot-2020-05-16-at-10.50.41-AM.webp" alt="" width="842" height="524" loading="lazy" decoding="async"></p>
+<p><img src="media/Screen-Shot-2020-05-16-at-10.50.30-AM.webp" alt="" width="1078" height="268" loading="lazy" decoding="async"></p>
+<p>Because the validation loss and accuracy get worse as the training loss improves, this is a sign to me of overfitting to the training set, so I’ll call it a day.</p>
+<h3 id="model-evaluation">Model Evaluation<a class="sm-anchor" href="#model-evaluation" aria-label="Link to this section">¶</a></h3><p>While looking at the reported model metrics during training, I may be led to feel good about how well the model performed, but I remember the classes are severely imbalanced. Therefore, I need to assess performance at the level of each character label.</p>
+<div class="sm-gallery"><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2081" height="300" src="media/Screen-Shot-2020-05-13-at-12.58.50-PM.webp" width="300"/></figure><figure><img alt="" data-full-url="https://seanmacrae.com/wp-content/uploads/2020/05/Screen-Shot-2020-05-13-at-1.00.43-PM.png" data-link="https://seanmacrae.com/?attachment_id=2084" height="300" src="media/Screen-Shot-2020-05-13-at-1.00.43-PM.webp" width="300"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2079" height="300" src="media/Screen-Shot-2020-05-13-at-12.57.03-PM.webp" width="300"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2082" height="300" src="media/Screen-Shot-2020-05-13-at-12.58.05-PM.webp" width="300"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2080" height="300" src="media/Screen-Shot-2020-05-13-at-12.57.30-PM.webp" width="300"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2078" height="300" src="media/Screen-Shot-2020-05-13-at-12.56.50-PM.webp" width="300"/></figure></div>
+<p>Overall, <em>the precision is garbage</em>. What’s boosting the accuracy and fbeta score is the true-negative rate, which is captured in the upper left quadrant of the confusion matrix. The model is much better at determining if a character is <em>not</em> in an image than if they _are,_but because so many characters appear so infrequently, even a naive model that always guessed that a character <em>does not appear</em> would have a favorable-looking accuracy and fbeta score.</p>
+<h2 id="what-is-the-model-looking-at">What is the Model Looking at?<a class="sm-anchor" href="#what-is-the-model-looking-at" aria-label="Link to this section">¶</a></h2><p>Using the Gradient-weighted Class Activation Mapping (Grad-CAM) implementation in fastai, I visualized what the trained model is “seeing.”</p>
+<div class="sm-gallery"><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2145" height="974" src="media/Screen-Shot-2020-05-13-at-9.49.35-PM-2.webp" width="662"/></figure><figure><img alt="" data-link="https://seanmacrae.com/?attachment_id=2148" height="974" src="media/Screen-Shot-2020-05-13-at-9.47.56-PM-2.webp" width="662"/></figure><figure><img alt="" data-full-url="https://seanmacrae.com/wp-content/uploads/2020/05/Screen-Shot-2020-05-13-at-9.50.57-PM-2.png" data-link="https://seanmacrae.com/?attachment_id=2150" height="970" src="media/Screen-Shot-2020-05-13-at-9.50.57-PM-2.webp" width="666"/></figure></div>
+<hr />
+<p>It appears the model is keying off non-drawn features like barcode, publisher logo, and series title, which is a bummer because I intended to train a network to see the many hand-drawn artistic elements that make up comic book covers. But, it’s honed in on, in my opinion, the least interesting visual elements. These results are unfortunate, but it’s at least a lesson to take into the next experiment.</p>
+<h2 id="conclusion">Conclusion<a class="sm-anchor" href="#conclusion" aria-label="Link to this section">¶</a></h2><p>This research spike discovered that performing multi-label character classification on comic book covers using a ResNet34 architecture did not work well due to non-drawn entities that carry a lot of information about what characters appear on what cover. Also, the class imbalance and low hit rate of some labels in the Justice League training set make accuracy and fbeta look much more favorable at an aggregate level during training.</p>
+<h2 id="next-steps">Next Steps<a class="sm-anchor" href="#next-steps" aria-label="Link to this section">¶</a></h2><ol>
+<li>Investigate approaches to control for non-drawn entities on comic book covers.</li>
+<li>Reconfigure the training dataset to be more balanced.</li>
+</ol>
+</article></main><footer class="sm-foot"><div class="sm-foot-inner"><span>© 2020–2026 Sean MacRae</span><a href="/feed.xml">Feed</a><a href="https://github.com/macrae" rel="noopener">GitHub</a><a href="mailto:s.mac925@gmail.com">Email</a></div></footer></body>
+</html>
