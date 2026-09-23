@@ -2,7 +2,7 @@
 title: Forecazol™
 slug: forecazol
 date: 2023-11-22
-status: staged
+status: published
 summary: "A pharmaceutical advert for a supplement that cures forecasting. Side effects include overfitting, training on the test set, and confusing correlation with causation."
 category: culture
 tags: [satire, generative]

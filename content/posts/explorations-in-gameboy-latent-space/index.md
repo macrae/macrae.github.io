@@ -2,7 +2,7 @@
 title: Explorations in GameBoy Latent Space
 slug: explorations-in-gameboy-latent-space
 date: 2023-01-07
-status: staged
+status: published
 summary: "The Game Boy as IKEA, as Black & Decker, as REI, as punk rock. Walking a text-to-image model through one familiar object in unfamiliar contexts."
 category: culture
 tags: [generative, latent-space]

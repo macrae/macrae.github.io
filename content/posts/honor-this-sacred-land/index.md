@@ -2,7 +2,7 @@
 title: Honor This Sacred Land
 slug: honor-this-sacred-land
 date: 2024-01-27
-status: staged
+status: published
 summary: "A viral tweet about fidget spinners, two-thirds of an acre in the East Bay, and a pile of fireplace bricks moved twelve at a time."
 category: culture
 tags: [place]

@@ -2,7 +2,7 @@
 title: Koch’s Snowflake
 slug: kochs-snowflake
 date: 2020-04-15
-status: staged
+status: published
 summary: "A shape grown from one triangle whose perimeter runs to infinity while its area stays finite. Worked through, because intuition gets this one badly wrong."
 category: mathematics
 tags: [fractals, proof]

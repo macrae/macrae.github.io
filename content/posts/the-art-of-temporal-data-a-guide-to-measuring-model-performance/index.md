@@ -2,7 +2,7 @@
 title: "The Art of Temporal Data: A Guide to Measuring Model Performance"
 slug: the-art-of-temporal-data-a-guide-to-measuring-model-performance
 date: 2023-07-15
-status: staged
+status: published
 summary: "When data changes over time, tuning on out-of-time data is peeking into the future. How to split in-time from out-of-time so the evaluation still means something."
 category: data-science
 tags: [time-series, model-performance, evaluation]

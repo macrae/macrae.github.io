@@ -2,7 +2,7 @@
 title: Web Scraping by a Data Scientist
 slug: web-scraping-by-a-data-scientist
 date: 2020-12-31
-status: staged
+status: published
 summary: "Lessons from a deliberately scrappy scraper: JSONL over JSON, an append-only log, and why the data-collection code does not deserve to be a proper package."
 category: data-science
 tags: [scraping, comics]

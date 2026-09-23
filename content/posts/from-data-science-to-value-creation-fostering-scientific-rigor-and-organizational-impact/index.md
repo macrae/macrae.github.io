@@ -2,7 +2,7 @@
 title: From Data Science to Value Creation – Fostering Scientific Rigor and Organizational Impact
 slug: from-data-science-to-value-creation-fostering-scientific-rigor-and-organizational-impact
 date: 2024-02-04
-status: staged
+status: published
 summary: "Technically excellent data scientists are often not being scientific. On hypotheses, the Build-Measure-Learn loop, and organisations that reward the wrong half of the job."
 category: practice
 tags: [teams]

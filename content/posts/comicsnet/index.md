@@ -2,7 +2,7 @@
 title: ComicsNet
 slug: comicsnet
 date: 2020-12-31
-status: staged
+status: published
 summary: "Why teach a neural network to reason about comic books at all. The fast.ai course, the Oxford pets benchmark, and machine creativity as a reason to build something."
 category: machine-learning
 tags: [comics, fast-ai]

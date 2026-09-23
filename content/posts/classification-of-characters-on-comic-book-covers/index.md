@@ -2,7 +2,7 @@
 title: Comic Book Character Classification
 slug: classification-of-characters-on-comic-book-covers
 date: 2020-05-01
-status: staged
+status: published
 summary: "112,000 comic covers scraped from the Grand Comics Database, and a multi-label classifier for the characters drawn on them."
 category: machine-learning
 tags: [comics, fast-ai]
