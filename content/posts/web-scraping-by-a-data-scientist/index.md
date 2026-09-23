@@ -3,9 +3,6 @@ title: Web Scraping by a Data Scientist
 slug: web-scraping-by-a-data-scientist
 date: 2020-12-31
 status: published
-summary: "Lessons from a deliberately scrappy scraper: JSONL over JSON, an append-only log, and why the data-collection code does not deserve to be a proper package."
-category: data-science
-tags: [scraping, comics]
 wp_id: 44
 wp_link: "https://seanmacrae.com/web-scraping-by-a-data-scientist/"
 wp_excerpt: "Here I present the lessons I learned while creating a web-scraper module for my ComicsNet project. I don’t consider this module to be a proper Python package at all yet; maybe ever. It is the mildewing tech debt of Data Science. Tech debt, like financial debt, has many forms and, depending on conditions, can be either responsible […]"
@@ -13,6 +10,9 @@ wp_categories: [Data Science]
 wp_tags: [ComicsNet, Web Scraping]
 source: wordpress-rest-v2
 updated: 2020-05-24
+summary: "Lessons from a deliberately scrappy scraper: JSONL over JSON, an append-only log, and why the data-collection code does not deserve to be a proper package."
+category: data-science
+tags: [scraping, comics]
 ---
 
 Here I present the lessons I learned while creating a web-scraper module for my [ComicsNet](https://seanmacrae.com/tag/comicsnet/) project. I don’t consider this module to be a _proper_ Python package at all yet; maybe ever. It is the mildewing tech debt of Data Science. Tech debt, like financial debt, has many forms and, depending on conditions, can be either responsible or ill-advised. For example, taking out a small business loan to grow inventory and scale distribution can be considered good debt. However, financing a shopping spree at Manolo Blahnik on a 30% APR line of credit is terrible debt (well, if you don’t pay it off that month).

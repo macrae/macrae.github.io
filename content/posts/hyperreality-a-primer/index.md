@@ -24,7 +24,7 @@ As I’ll show you in this essay, this phenomenon has existed since ancient time
 
 Once you see it, you can’t unsee it.
 
-## ![](media/giphy.webp)
+![](media/giphy.webp)
 
 ## I. The Foundation of Hyperreality: Maps and Territories
 

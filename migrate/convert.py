@@ -75,6 +75,7 @@ class Stats:
         self.galleries = 0
         self.raw_html_blocks = 0
         self.captions = 0
+        self.heading_images = 0
         self.unknown_tags = set()
 
 
@@ -337,6 +338,15 @@ def _block(node, stats, where, media, overrides):
         if not inner:
             stats.empty_heading += 1
             return ""
+        # A HEADING THAT IS ONLY AN IMAGE IS NOT A HEADING. WordPress lets you
+        # drop an image into a heading block, and two posts here do it -- one
+        # with a 1,492-character Midjourney prompt as its alt, which renders as
+        # an enormous h2 of prose where a picture should be. Emit the image and
+        # drop the heading level; keeping it would put that text in the
+        # document outline and in every table of contents forever.
+        if re.fullmatch(r"!\[[^\]]*\]\([^)]+\)", inner):
+            stats.heading_images += 1
+            return inner
         level = int(name[1])
         return "#" * max(2, level) + " " + inner
 

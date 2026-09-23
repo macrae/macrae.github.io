@@ -3,9 +3,6 @@ title: Koch’s Snowflake
 slug: kochs-snowflake
 date: 2020-04-15
 status: published
-summary: "A shape grown from one triangle whose perimeter runs to infinity while its area stays finite. Worked through, because intuition gets this one badly wrong."
-category: mathematics
-tags: [fractals, proof]
 wp_id: 1640
 wp_link: "https://seanmacrae.com/kochs-snowflake/"
 wp_excerpt: "Intuition has often led me astray, but (luckily?) never more than when studying mathematics. Koch’s Snowflake is that reminder for me. Koch’s Snowflake is a fractal, a class of complex geometric shapes that display self-similarity on all scales. It is “grown” from a single equilateral triangle. At each stage in growth, equilateral triangles of diminishing […]"
@@ -13,6 +10,9 @@ wp_categories: [Mathematics]
 wp_tags: [Proof, Real Analysis]
 source: wordpress-rest-v2
 updated: 2020-05-24
+summary: "A shape grown from one triangle whose perimeter runs to infinity while its area stays finite. Worked through, because intuition gets this one badly wrong."
+category: mathematics
+tags: [fractals, proof]
 ---
 
 Intuition has often led me astray, but (luckily?) never more than when studying mathematics. Koch’s Snowflake is that reminder for me.

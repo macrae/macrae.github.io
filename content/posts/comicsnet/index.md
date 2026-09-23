@@ -3,9 +3,6 @@ title: ComicsNet
 slug: comicsnet
 date: 2020-12-31
 status: published
-summary: "Why teach a neural network to reason about comic books at all. The fast.ai course, the Oxford pets benchmark, and machine creativity as a reason to build something."
-category: machine-learning
-tags: [comics, fast-ai]
 wp_id: 6
 wp_link: "https://seanmacrae.com/comicsnet/"
 wp_excerpt: "Motivation Achievements in machine learning over the last decade, especially for vision and natural language, are pretty amazing when you stop to think about it. I hadn’t given it much thought until I watched the first video in Jeremy Howard’s tremendous Practical Deep Learning for Coders, v3 lecture series. The first video covers an image […]"
@@ -13,6 +10,9 @@ wp_categories: [Uncategorized]
 wp_tags: []
 source: wordpress-rest-v2
 updated: 2020-05-23
+summary: "Why teach a neural network to reason about comic books at all. The fast.ai course, the Oxford pets benchmark, and machine creativity as a reason to build something."
+category: machine-learning
+tags: [comics, fast-ai]
 ---
 
 ## Motivation
