@@ -19,6 +19,11 @@ As a parent, finding a few moments of solitude can be challenging. But in these 
 
 I enjoy taking something familiar and well-known and casting it in a new light, and these Stable Diffusion models can transport me to new and unfamiliar contexts and perspectives with a single prompt. That’s why in this series, I have also included descriptions – written by myself – as an art critic examining each one on its visual merits and my emotional response to the piece.
 
+<a class="sm-depart-card" href="/gallery/#c:gameboy">
+<strong>See all of these in the gallery &#8599;</strong>
+<span>Every variant full size, with its prompt — filter by collection or tag, or run them as a slideshow.</span>
+</a>
+
 ## Gameboy by IKEA
 
 This piece makes me feel excitement and anxiety, like staring down the barrel of a daunting – yet ultimately rewarding task. You know the kind, right? The “this-was-only-supposed-to-take-an-hour” three-hours later vibe? The level of detail is fantastic, with delicate lines and dense blocks of text and arrows creating a sense of narrative. This feels like a luxury brand because it has crafted a story within a single image, elevating beyond the assembly diagram into art.
@@ -30,8 +35,6 @@ This piece makes me feel excitement and anxiety, like staring down the barrel of
 Evoking the iconic style of black and white checkered Vans of my childhood, these devices exude a vintage charm reminiscent of the sturdy electronics of the late 80s. They are powered by batteries, likely requiring a healthy supply of double A’s. Despite their rough-around-the-edges appearance, with paint-worn, grime, and sweat-caked buttons that need a bit of extra force to register, they have been well-loved and used to their full potential. The fabric straps enhance their appeal and add a touch of individuality.
 
 !["The Punk Rock Game Boy - a battered and graffiti-covered handheld that's tough as nails. It's got a black-and-white checkerboard pattern and a studded strap that'll keep it securely attached to your wrist as you blast through levels. It's not for the faint of heart."](media/c1478b28d8f7de573a08a09fabb19d001cf5dbc6.webp)
-
-!["The Punk Rock Game Boy - a battered and graffiti-covered handheld that's tough as nails. It's got a black-and-white checkerboard pattern and a studded strap that'll keep it securely attached to your wrist as you blast through levels. It's not for the faint of heart."](media/c6903d7fdb3a25a6d2f868f991df1ec445906fd1.webp)
 
 ## Gameboy by Black & Decker
 
@@ -51,8 +54,6 @@ Unfortunately, these devices are no longer functional. They may flicker to a gli
 
 !["The Battle-Scarred Game Boy - a handheld that's seen its fair share of action. Its surface is dented and battered, with scraps of metal and shards of glass held together by a network of wires. It's powered by the pure, unbridled rage of its former owners, and it's said to contain a never-ending supply of intense, metal game worlds within its screen."](media/461b1535984f892dfe7f7ee6e345997a7ac87ca1.webp)
 
-!["The Battle-Scarred Game Boy - a handheld that's seen its fair share of action. Its surface is dented and battered, with scraps of metal and shards of glass held together by a network of wires. It's powered by the pure, unbridled rage of its former owners, and it's said to contain a never-ending supply of intense, metal game worlds within its screen."](media/ee7cc7265d946ede87aae6c2149b95aa05c9edbc.webp)
-
 ## Gameboy by REI
 
 These devices are not solely relegated to the realm of video games. Instead, they are multifunctional, serving as all-in-one GPS, radio, and walkie-talkie survival handsets. They are the ultimate tech tool for hikers, designed to be rugged and withstand even the most adverse weather conditions. The premium model even boasts a star tracker app, allowing users to navigate by the celestial light of the stars. However, it must be noted that the menu interface is notoriously cumbersome and difficult to navigate.
@@ -71,15 +72,11 @@ When one has the means and desire to indulge in a lavish display of excess, the 
 
 !["The Gold Game Boy - a handheld made entirely of gleaming, pure gold. Its buttons are formed from sparkling gemstones, and its screen is made of a sheet of shimmering gold leaf. It's said to be infused with the power of the sun, and it's a must-have for eco-conscious gamers looking to make a statement."](media/6ab46ae211fc146f4bf84ba72c55bbac0c2074d7.webp)
 
-!["The Gold Game Boy - a handheld made entirely of gleaming, pure gold. Its buttons are formed from sparkling gemstones, and its screen is made of a sheet of shimmering gold leaf. It's said to be infused with the power of the sun, and it's a must-have for eco-conscious gamers looking to make a statement."](media/be54c590c604e39562e6d5500406f463d6b4d147.webp)
-
 ## The Crystal Gameboy
 
 Crafted from a single, breathtaking block of Aquamarine, these Gameboys exude a sense of opulence and luxury. The faceting skillfully interacts with light, creating a mesmerizing visual effect. The gem studs set within the directional pad serve as a delightful finishing touch, adding a layer of refinement and elegance – a stunning visual presence when displayed on a shelf with dramatic backlighting.
 
 ![The crystalline Game Boy is a truly stunning piece of craftsmanship. The device is made entirely of shimmering gems and crystals, each one carefully chosen and placed to create a visually stunning and structurally sound handheld gaming system. The central processing unit, depicted as a glowing crystal orb at the heart of the device, is made of a shimmering sapphire, known for its clarity and strength. The memory management unit and graphics processing unit, depicted as sparkling crystal clusters on either side of the orb, are made of sparkling diamonds, known for their unparalleled beauty and durability. The sound processing unit, depicted as a crystal horn on the top of the device, is made of a glowing amber, known for its warm, soothing properties. The power supply unit, depicted as a crystal battery pack on the back of the device, is made of a glowing emerald, known for its ability to provide long-lasting energy. The charging circuit, depicted as a crystal charging port on the side of the device, is made of a shimmering amethyst, known for its ability to transmit energy efficiently. The cartridge slot, depicted as a crystal slot on the bottom of the device, is made of a glittering ruby, known for its ability to hold and process data. Each element of the device is expertly crafted and meticulously placed, and the overall effect is truly breathtaking. The crystalline Game Boy is a work of art that any true connoisseur of fine craftsmanship will appreciate and admire.](media/4163381430ead3e627dd902b73a1a1b9f8c54e14.webp)
-
-![The crystalline Game Boy is a truly stunning piece of craftsmanship. The device is made entirely of shimmering gems and crystals, each one carefully chosen and placed to create a visually stunning and structurally sound handheld gaming system. The central processing unit, depicted as a glowing crystal orb at the heart of the device, is made of a shimmering sapphire, known for its clarity and strength. The memory management unit and graphics processing unit, depicted as sparkling crystal clusters on either side of the orb, are made of sparkling diamonds, known for their unparalleled beauty and durability. The sound processing unit, depicted as a crystal horn on the top of the device, is made of a glowing amber, known for its warm, soothing properties. The power supply unit, depicted as a crystal battery pack on the back of the device, is made of a glowing emerald, known for its ability to provide long-lasting energy. The charging circuit, depicted as a crystal charging port on the side of the device, is made of a shimmering amethyst, known for its ability to transmit energy efficiently. The cartridge slot, depicted as a crystal slot on the bottom of the device, is made of a glittering ruby, known for its ability to hold and process data. Each element of the device is expertly crafted and meticulously placed, and the overall effect is truly breathtaking. The crystalline Game Boy is a work of art that any true connoisseur of fine craftsmanship will appreciate and admire.](media/543690c88185531eaa01a82622ab3924894d4ee2.webp)
 
 ## The Multicellular Gameboy
 
