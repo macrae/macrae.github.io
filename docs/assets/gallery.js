@@ -287,6 +287,8 @@
   var cap = box.querySelector("figcaption");
   var at = -1;
   var timer = null;
+  var fig = box.querySelector(".sm-lb-fig");
+  var zoomed = false;
 
   function show(i) {
     if (!visible.length) return;
@@ -309,8 +311,46 @@
       : "/gallery/images/" + (it.hf ? it.f : it.t);
     img.alt = it.a || it.p.slice(0, 120);
     cap.textContent = it.a ? it.a + " — " + it.p : it.p;
+    setZoom(false);
     box.hidden = false;
     document.body.style.overflow = "hidden";
+  }
+
+  /**
+   * Click to magnify, move to pan, click again to fit.
+   *
+   * The image is shown at its NATURAL size while zoomed -- these are AI
+   * images and the thing worth inspecting is what the model actually drew at
+   * the pixel level, so scaling past 1:1 would only show the upscaler's
+   * opinion. Panning follows the cursor rather than needing a drag, because
+   * inspecting means sweeping across a picture, not dragging it around.
+   */
+  function panTo(clientX, clientY) {
+    if (!zoomed) return;
+    var r = fig.getBoundingClientRect();
+    var px = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    var py = Math.min(1, Math.max(0, (clientY - r.top) / r.height));
+    var overX = Math.max(0, img.naturalWidth - r.width);
+    var overY = Math.max(0, img.naturalHeight - r.height);
+    img.style.transform = "translate(" + (-px * overX) + "px," +
+                          (-py * overY) + "px)";
+  }
+
+  function setZoom(on, clientX, clientY) {
+    // Nothing to magnify if the file on hand is already smaller than the
+    // frame -- a staged image outside the curation server is a 480px
+    // thumbnail, and blowing that up shows nothing but its own pixels.
+    var r = fig.getBoundingClientRect();
+    if (on && img.naturalWidth <= r.width + 8 && img.naturalHeight <= r.height + 8) {
+      return;
+    }
+    zoomed = !!on;
+    box.classList.toggle("is-zoomed", zoomed);
+    if (zoomed) {
+      panTo(clientX, clientY);
+    } else {
+      img.style.transform = "";
+    }
   }
 
   function stop() {
@@ -333,6 +373,16 @@
     });
   });
 
+  img.addEventListener("click", function (ev) {
+    ev.stopPropagation();          // never close the lightbox by inspecting
+    stop();                        // a slideshow that moves while you look is useless
+    setZoom(!zoomed, ev.clientX, ev.clientY);
+  });
+  fig.addEventListener("mousemove", function (ev) { panTo(ev.clientX, ev.clientY); });
+  fig.addEventListener("mouseleave", function () {
+    if (zoomed) setZoom(false);
+  });
+
   box.querySelector(".sm-lb-close").addEventListener("click", close);
   box.querySelector(".sm-lb-next").addEventListener("click", function () { stop(); show(at + 1); });
   box.querySelector(".sm-lb-prev").addEventListener("click", function () { stop(); show(at - 1); });
@@ -340,9 +390,14 @@
 
   document.addEventListener("keydown", function (ev) {
     if (box.hidden) return;
-    if (ev.key === "Escape") close();
+    if (ev.key === "Escape") {
+      // Escape backs out one level: magnified, then the lightbox itself.
+      if (zoomed) setZoom(false);
+      else close();
+    }
     else if (ev.key === "ArrowRight") { stop(); show(at + 1); }
     else if (ev.key === "ArrowLeft") { stop(); show(at - 1); }
+    else if (ev.key === "z" || ev.key === "Z") setZoom(!zoomed);
   });
 
   if (playBtn) {

@@ -413,7 +413,25 @@ a.sm-takes:hover { background: var(--sm-accent); }
 .sm-lb-fig { margin: 0; max-width: 92vw; max-height: 88vh; display: flex;
              flex-direction: column; gap: 0.7rem; }
 .sm-lb-fig img { max-width: 100%; max-height: 76vh; object-fit: contain;
-                 border-radius: 2px; }
+                 border-radius: 2px; cursor: zoom-in; }
+
+/* MAGNIFIED. The figure becomes a fixed window and the image sits inside it
+   at its NATURAL size, panned by transform as the cursor moves -- so what you
+   see is the actual pixels the model produced rather than an upscale of
+   them. max-width/max-height have to be unset or the image would keep being
+   squeezed to fit the very frame we are trying to look past. */
+.sm-lightbox.is-zoomed .sm-lb-fig {
+  overflow: hidden; width: 92vw; height: 82vh; max-width: none; max-height: none;
+  cursor: zoom-out; align-items: flex-start;
+}
+.sm-lightbox.is-zoomed .sm-lb-fig img {
+  max-width: none; max-height: none; width: auto; height: auto;
+  cursor: zoom-out; transition: none; border-radius: 0;
+}
+/* The caption would push the image out of the window while magnified. */
+.sm-lightbox.is-zoomed .sm-lb-fig figcaption { display: none; }
+.sm-lightbox.is-zoomed .sm-lb-prev,
+.sm-lightbox.is-zoomed .sm-lb-next { opacity: 0.25; }
 .sm-lb-fig figcaption { font-family: var(--sm-sans); font-size: 0.8rem;
                         line-height: 1.5; color: #b9b2a3; max-width: 46rem;
                         margin: 0 auto; text-align: center;
