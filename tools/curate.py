@@ -26,6 +26,7 @@ from urllib.parse import unquote
 ROOT = Path(__file__).resolve().parent.parent
 PREVIEW = ROOT / "preview"
 INDEX = ROOT / "content" / "gallery" / "index.json"
+IMAGES = ROOT / "content" / "gallery" / "images"
 LOCK = threading.Lock()
 STATUSES = ("published", "staged", "archived")
 
@@ -87,6 +88,26 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        if self.path.startswith("/curate/thumb/"):
+            # STRAIGHT FROM content/gallery/images/, not from the preview
+            # build. The build deliberately does not copy archived images --
+            # they are not part of the site -- so the archived view could only
+            # show the handful archived since the last rebuild and the rest
+            # came up blank. Every thumbnail exists; the served tree just did
+            # not have them.
+            name = unquote(self.path.rsplit("/", 1)[-1].split("?")[0])
+            src = IMAGES / name
+            # Refuse anything that climbs out of the image directory.
+            if ".." in name or "/" in name or not src.exists():
+                return self._json({"error": "no such image"}, 404)
+            blob = src.read_bytes()
+            self.send_response(200)
+            self.send_header("content-type", "image/webp")
+            self.send_header("content-length", str(len(blob)))
+            self.send_header("cache-control", "public, max-age=3600")
+            self.end_headers()
+            self.wfile.write(blob)
+            return
         if self.path.startswith("/curate/original/"):
             # THE ORIGINAL, STRAIGHT OFF THE ARCHIVE. A staged image has only
             # a 480px thumbnail in the repository, because generating full
@@ -121,7 +142,7 @@ class Handler(SimpleHTTPRequestHandler):
             arch = [i for i in data["images"] if i["status"] == "archived"]
             arch.sort(key=lambda i: (i.get("date") or "", i["file"]), reverse=True)
             tiles = "".join(
-                '<figure data-id="%s"><img src="/gallery/images/%s" alt="" '
+                '<figure data-id="%s"><img src="/curate/thumb/%s" alt="" '
                 'loading="lazy"><figcaption>%s<br><small>%s</small></figcaption>'
                 '<button data-id="%s">Restore</button></figure>' % (
                     i["id"], i["thumb"],
