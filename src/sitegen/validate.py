@@ -17,7 +17,7 @@ import re
 import sys
 from pathlib import Path
 
-from . import content, design, spec
+from . import content, design, gallery, spec
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -56,6 +56,10 @@ def check_tree(root, corpus, report):
     # The script allowlist is derived FROM THE CORPUS, not from a second
     # hand-maintained list, so the two cannot drift apart.
     allowed = {}
+    # The gallery is a generated page with no front matter, so it declares its
+    # scripts in code instead. Read from there, so the page and the allowlist
+    # still cannot drift apart.
+    allowed[spec.path_for("gallery")] = set(gallery.SCRIPTS)
     for entry in corpus.all_entries:
         page = str(Path(entry.output_path))
         allowed[page] = {s["src"].split("/")[-1] for s in entry.meta.get("scripts", [])}
@@ -82,6 +86,13 @@ def check_tree(root, corpus, report):
         for m in re.finditer(r"<script\b([^>]*)>(.*?)</script>", html, re.I | re.S):
             checked_scripts += 1
             attrs, body = _attrs(m.group(1)), m.group(2)
+            # A JSON DATA ISLAND IS NOT CODE. <script type="application/json">
+            # is never executed -- the browser exposes it as text and the page
+            # parses it. This is the one narrow exception to "no inline script
+            # body", and it is narrow on purpose: any OTHER type, including a
+            # missing one, still fails.
+            if attrs.get("type") == "application/json":
+                continue
             if body.strip():
                 report.error(rel, "inline <script> body — scripts must be "
                                   "external files so every byte is diffable")

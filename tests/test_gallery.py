@@ -1,0 +1,125 @@
+"""The gallery: the first page on this site allowed to ship JavaScript."""
+
+import json
+import pathlib
+import re
+import shutil
+import tempfile
+
+import pytest
+
+from sitegen import build, gallery, spec
+
+
+@pytest.fixture(scope="module")
+def tree(request):
+    from sitegen import content
+    root = pathlib.Path(tempfile.mkdtemp())
+    build.write(build.plan(content.load()), root=root)
+    yield root
+    shutil.rmtree(root)
+
+
+def test_published_images_render_as_tiles(tree):
+    images = gallery.load()
+    assert len(images) >= 10, f"only {len(images)} published images to test with"
+    html = (tree / "gallery" / "index.html").read_text(encoding="utf-8")
+    tiles = re.findall(r'class="sm-tile"', html)
+    assert len(tiles) == len(images), f"{len(tiles)} tiles for {len(images)} images"
+
+
+def test_an_unpublished_image_is_absent_from_the_page_AND_from_disk(tree):
+    """A staged image must not be sitting on the server for anyone who guesses
+    its filename. The page not linking to it is not enough."""
+    raw = json.loads(gallery.INDEX.read_text(encoding="utf-8"))["images"]
+    unpublished = [i for i in raw if i.get("status") != "published"]
+    html = (tree / "gallery" / "index.html").read_text(encoding="utf-8")
+    checked = 0
+    for image in unpublished:
+        assert image["file"] not in html, f"{image['file']} leaked into the page"
+        assert not (tree / "gallery" / "images" / image["file"]).exists(), (
+            f"{image['file']} was copied to the server despite being "
+            f"{image['status']}")
+        checked += 1
+    # Deliberately no floor: everything may legitimately be published. The
+    # assertions above are what matter, and they are vacuous only when there is
+    # genuinely nothing unpublished.
+    assert checked >= 0
+
+
+def test_every_published_image_has_both_its_files(tree):
+    checked = 0
+    for image in gallery.load():
+        for key in ("file", "thumb"):
+            path = tree / "gallery" / "images" / image[key]
+            assert path.exists(), f"missing {image[key]}"
+            assert path.stat().st_size > 0
+            checked += 1
+    assert checked >= 20
+
+
+def test_each_image_gets_its_own_page_with_its_prompt(tree):
+    checked = 0
+    for image in gallery.load():
+        page = tree / "gallery" / gallery.slug_for(image) / "index.html"
+        assert page.exists(), f"no page for {image['file']}"
+        html = page.read_text(encoding="utf-8")
+        if image.get("prompt"):
+            # The prompt is the content. A gallery that drops it is a folder.
+            head = image["prompt"][:40]
+            assert head.replace("&", "&amp;") in html or head in html, (
+                f"{image['file']}: prompt missing from its own page")
+        checked += 1
+    assert checked >= 10
+
+
+def test_the_grid_works_without_javascript(tree):
+    """Every tile is a real link to a real page, so the no-JS path is a
+    working gallery rather than an apology."""
+    html = (tree / "gallery" / "index.html").read_text(encoding="utf-8")
+    hrefs = re.findall(r'class="sm-tile" href="([^"]+)"', html)
+    assert len(hrefs) >= 10
+    checked = 0
+    for href in hrefs:
+        target = tree / href.strip("/") / "index.html"
+        assert target.exists(), f"tile links to {href}, which does not exist"
+        checked += 1
+    assert checked >= 10
+    assert "<noscript" in html
+    # Controls start hidden so a reader without JS never sees a dead button.
+    assert 'class="sm-controls" hidden' in html
+
+
+def test_the_only_scripts_are_the_declared_one_and_a_json_island(tree):
+    html = (tree / "gallery" / "index.html").read_text(encoding="utf-8")
+    scripts = re.findall(r"<script\b([^>]*)>(.*?)</script>", html, re.S)
+    assert len(scripts) == 2, f"expected 2 script tags, found {len(scripts)}"
+    kinds = sorted(
+        "json" if 'type="application/json"' in attrs else "external"
+        for attrs, _ in scripts)
+    assert kinds == ["external", "json"], kinds
+    for attrs, body in scripts:
+        if 'type="application/json"' in attrs:
+            json.loads(body)          # must be parseable, or the page is dead
+        else:
+            assert not body.strip(), "the declared script has an inline body"
+            src = re.search(r'src="([^"]+)"', attrs).group(1)
+            assert src.lstrip("/").split("/")[-1] in gallery.SCRIPTS
+
+
+def test_the_script_is_committed_and_local(tree):
+    for name in gallery.SCRIPTS:
+        asset = tree / "assets" / name
+        assert asset.exists(), f"{name} was not deployed"
+        text = asset.read_text(encoding="utf-8")
+        assert "http://" not in text and "https://" not in text, (
+            f"{name} reaches off-site; scripts must be local and committed")
+
+
+def test_gallery_slugs_cannot_collide_with_an_essay():
+    """Images live at /gallery/<slug>/, essays at /<slug>/, so they cannot
+    collide — but `gallery` itself must be reserved or an essay could shadow
+    the whole section."""
+    assert "gallery" in spec.RESERVED_SLUGS
+    slugs = [gallery.slug_for(i) for i in gallery.load()]
+    assert len(slugs) == len(set(slugs)), "two images claim one URL"

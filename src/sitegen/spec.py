@@ -42,6 +42,7 @@ MEASURE = "46rem"
 NAV = (
     ("writing",  "Writing",  "internal", "writing"),
     ("projects", "Projects", "internal", "projects"),
+    ("gallery",  "Gallery",  "internal", "gallery"),
     ("about",    "About",    "internal", "about"),
     ("mana-map", "Mana Map", "external", "/mana-map/"),
 )
@@ -58,6 +59,13 @@ PAGE_KINDS = (
     ("category",   "writing/{category}/index.html",    "generated"),
     ("tag",        "tags/{tag}/index.html",            "generated"),
     ("projects",   "projects/index.html",              "generated"),
+    # The gallery is GENERATED from content/gallery/index.json, which is
+    # itself half authored: the ingest tool fills in facts (dimensions,
+    # prompt, job id) and never touches the curated half (status, title,
+    # tags, collection). Same split as everywhere else, one file rather than
+    # two, because an image's facts and its curation are one row.
+    ("gallery",    "gallery/index.html",               "generated"),
+    ("image",      "gallery/{slug}/index.html",        "generated"),
     ("project",    "projects/{slug}/index.html",       "authored"),
     ("about",      "about/index.html",                 "authored"),
     ("notfound",   "404.html",                         "generated"),
@@ -134,7 +142,7 @@ STATUSES = ("published", "staged", "archived")
 # link. Every future repo that gets Pages enabled joins this tuple.
 RESERVED_SLUGS = frozenset({
     "mana-map",          # macrae/mana-map — another repo entirely
-    "writing", "tags", "projects", "about", "assets", "index", "404",
+    "writing", "tags", "projects", "gallery", "about", "assets", "index", "404",
     "index.html", "404.html",
     "feed.xml", "sitemap.xml", "robots.txt", "site.css", "CNAME", ".nojekyll",
 })

@@ -23,7 +23,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from . import content, design, feed, render, sitemap, spec
+from . import content, design, feed, gallery, render, sitemap, spec
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PUBLISH = ROOT / "docs"
@@ -45,6 +45,22 @@ def plan(corpus, *, check_internal=None):
     put("feed", feed.render_feed(corpus))
     put("sitemap", sitemap.render_sitemap(corpus))
     put("robots", sitemap.render_robots(corpus))
+
+    put("gallery", gallery.render_gallery(corpus))
+    images = gallery.load()
+    for n, image in enumerate(images):
+        put("image",
+            gallery.render_image(corpus, image,
+                                 (images[n - 1] if n else None,
+                                  images[n + 1] if n + 1 < len(images) else None)),
+            slug=gallery.slug_for(image))
+    # Only the published images are copied, so an unpublished one is not
+    # sitting on the server for anyone who guesses its filename.
+    for image in images:
+        for key in ("file", "thumb"):
+            src = gallery.IMAGES / image[key]
+            if src.exists():
+                out[f"gallery/images/{image[key]}"] = src.read_bytes()
 
     for category in corpus.by_category():
         put("category", render.render_category_index(corpus, category),

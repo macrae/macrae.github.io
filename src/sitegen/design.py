@@ -271,6 +271,63 @@ _CARDS = """
 .sm-depart-card span { font-family: var(--sm-sans); font-size: 0.9rem; color: var(--sm-ink-soft); }
 """
 
+_GALLERY = """
+.sm-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+               margin: 0 0 1.6rem; }
+.sm-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.sm-chip {
+  font-family: var(--sm-sans); font-size: 0.78rem; padding: 0.28rem 0.7rem;
+  border: 1px solid var(--sm-rule); border-radius: 999px; background: none;
+  color: var(--sm-ink-soft); cursor: pointer;
+}
+.sm-chip span { color: var(--sm-ink-faint); font-variant-numeric: tabular-nums; }
+.sm-chip:hover { border-color: var(--sm-accent); color: var(--sm-accent); }
+.sm-chip.is-on { background: var(--sm-ink); color: var(--sm-paper); border-color: var(--sm-ink); }
+.sm-chip.is-on span { color: var(--sm-paper-sunk); }
+.sm-play {
+  font-family: var(--sm-sans); font-size: 0.78rem; padding: 0.28rem 0.9rem;
+  border: 1px solid var(--sm-depart); border-radius: 999px; background: none;
+  color: var(--sm-depart); cursor: pointer; margin-left: auto;
+}
+
+/* A column grid rather than a fixed one: images are mixed aspect ratios and a
+   square grid crops or letterboxes every one of them. */
+.sm-grid { columns: 260px; column-gap: 0.7rem; }
+.sm-tile { display: block; margin: 0 0 0.7rem; break-inside: avoid; line-height: 0; }
+.sm-tile img { width: 100%; height: auto; border-radius: 2px;
+               transition: opacity 0.12s ease-in; }
+.sm-tile:hover img { opacity: 0.86; }
+
+.sm-lightbox {
+  position: fixed; inset: 0; z-index: 50; background: rgba(12, 11, 9, 0.94);
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 2rem 1rem;
+}
+.sm-lb-fig { margin: 0; max-width: 92vw; max-height: 88vh; display: flex;
+             flex-direction: column; gap: 0.7rem; }
+.sm-lb-fig img { max-width: 100%; max-height: 78vh; object-fit: contain;
+                 border-radius: 2px; }
+.sm-lb-fig figcaption { font-family: var(--sm-sans); font-size: 0.82rem;
+                        line-height: 1.5; color: #b9b2a3; max-width: 46rem;
+                        margin: 0 auto; text-align: center; }
+.sm-lightbox button {
+  background: none; border: 0; color: #b9b2a3; font-size: 2.4rem; line-height: 1;
+  cursor: pointer; padding: 0.4rem 0.8rem; flex: 0 0 auto;
+}
+.sm-lightbox button:hover { color: #fff; }
+.sm-lb-close { position: absolute; top: 0.6rem; right: 1rem; font-size: 2rem; }
+
+.sm-image-full { margin: 0 0 1.5rem; }
+.sm-image-full img { width: 100%; height: auto; border-radius: 2px; }
+.sm-prompt {
+  font-family: var(--sm-mono); font-size: 0.86rem; line-height: 1.6;
+  background: var(--sm-paper-sunk); border-left: 2px solid var(--sm-rule);
+  padding: 0.9rem 1.1rem; color: var(--sm-ink-soft); white-space: pre-wrap;
+}
+
+@media print { .sm-controls, .sm-lightbox { display: none; } .sm-grid { columns: 2; } }
+"""
+
 _CODE = """
 pre {
   font-family: var(--sm-mono); font-size: 0.84rem; line-height: 1.5;
@@ -329,7 +386,7 @@ def _pygments_css():
 
 def stylesheet():
     parts = [_TOKENS.replace("MEASURE", spec.MEASURE), _BASE, _CHROME,
-             _PROSE, _FIGURES, _CARDS, _CODE, _pygments_css(), _PRINT]
+             _PROSE, _FIGURES, _CARDS, _GALLERY, _CODE, _pygments_css(), _PRINT]
     return "\n".join(p.strip("\n") for p in parts) + "\n"
 
 
