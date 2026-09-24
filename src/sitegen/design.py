@@ -377,6 +377,16 @@ _GALLERY = """
   pointer-events: none;
 }
 
+.sm-more-facets { margin: 0.4rem 0 1.4rem; }
+.sm-more-facets > summary {
+  cursor: pointer; font-family: var(--sm-sans); font-size: 0.7rem;
+  letter-spacing: 0.11em; text-transform: uppercase; color: var(--sm-ink-faint);
+  padding: 0.35rem 0; border-top: 1px solid var(--sm-rule-soft);
+}
+.sm-more-facets > summary:hover { color: var(--sm-accent); }
+.sm-more-facets > summary span { font-size: 0.78em; opacity: 0.8; }
+.sm-more-facets[open] > summary { margin-bottom: 0.8rem; }
+
 .sm-param-list { list-style: none; padding: 0; margin: 0.6rem 0 0;
                  display: flex; flex-direction: column; gap: 0.35rem; }
 .sm-param-list code { font-family: var(--sm-mono); font-size: 0.8rem;

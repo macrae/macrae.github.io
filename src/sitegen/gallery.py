@@ -187,19 +187,33 @@ def render_gallery(corpus, include_unpublished=False):
     # the gallery with a filter in the fragment, so with JavaScript off it is
     # still a readable, linkable index of what the collection contains -- it
     # just does not filter in place. The script upgrades them to buttons.
-    panels = []
-    for group in groups:
+    def render_group(group):
         pills = "".join(
             f'<li><a class="sm-pill" data-group="{esc(group["key"])}" '
             f'data-value="{esc(value)}" '
             f'href="{esc(spec.url_for("gallery"))}#{esc(group["key"])}={esc(value)}">'
             f'{esc(value)}<span>{count}</span></a></li>'
             for value, count in group["values"])
+        return (f'<section class="sm-facet" data-kind="{esc(group["kind"])}">'
+                f'<h2>{esc(group["label"])}</h2>'
+                f'<ul class="sm-pills sm-facet-pills">{pills}</ul>'
+                f'</section>')
+
+    # PRIMARY GROUPS LEAD; THE REST FOLD AWAY. Sixty-four pills is a filing
+    # cabinet, not a filter. Theme (clustered from the prompts themselves) and
+    # Year answer most questions; everything else is there when wanted.
+    # A <details> works with no JavaScript at all, which the rest of the panel
+    # already depends on.
+    primary = [g for g in groups if g.get("primary")]
+    secondary = [g for g in groups if not g.get("primary")]
+    panels = [render_group(g) for g in primary]
+    if secondary:
+        n = sum(len(g["values"]) for g in secondary)
         panels.append(
-            f'<section class="sm-facet" data-kind="{esc(group["kind"])}">'
-            f'<h2>{esc(group["label"])}</h2>'
-            f'<ul class="sm-pills sm-facet-pills">{pills}</ul>'
-            f'</section>')
+            f'<details class="sm-more-facets"><summary>More filters '
+            f'<span>{n}</span></summary>'
+            + "".join(render_group(g) for g in secondary)
+            + '</details>')
 
     data = json.dumps(_client_index_with_facets(images, per_image),
                       separators=(",", ":"))
@@ -225,6 +239,11 @@ def render_gallery(corpus, include_unpublished=False):
         f'<div class="sm-grid" id="sm-grid">'
         + "".join(_tile(i) for i in images)
         + '</div>'
+        # Paged, because a wall of two thousand pictures is unreadable before
+        # it is slow. Hidden until the script proves it can page.
+        f'<div class="sm-more-wrap">'
+        f'<button class="sm-more" type="button" hidden>Show more</button>'
+        f'</div>'
 
         '</div>'
 

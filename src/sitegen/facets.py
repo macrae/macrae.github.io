@@ -87,6 +87,9 @@ def for_image(image):
         if source == "field:collection":
             if image.get("collection"):
                 values = [image["collection"]]
+        elif source == "field:theme":
+            if image.get("theme"):
+                values = [image["theme"]]
         elif source == "field:tags":
             values = list(image.get("tags") or [])
         elif source == "derived:year":
@@ -123,7 +126,10 @@ def panel(images):
         for facets in per_image:
             for value in facets.get(group["key"], []):
                 counts[value] = counts.get(value, 0) + 1
-        if not counts:
+        # A GROUP WITH ONE VALUE FILTERS NOTHING. Every image is in it, so
+        # clicking it changes the grid not at all -- it is a label wearing a
+        # button's clothes, and there were sixty-four buttons already.
+        if len(counts) < 2:
             continue
         # Commonest first, then alphabetical: the useful ones surface without
         # the order jittering between builds.
@@ -132,6 +138,7 @@ def panel(images):
             "key": group["key"],
             "label": group.get("label", group["key"]),
             "kind": group.get("source", "").split(":")[0],
+            "primary": bool(group.get("primary")),
             "values": values,
         })
     return groups, per_image

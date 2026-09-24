@@ -19,6 +19,12 @@
   ],
   "groups": [
     {
+      "key": "theme",
+      "label": "Theme",
+      "source": "field:theme",
+      "primary": true
+    },
+    {
       "key": "collection",
       "label": "Collection",
       "source": "field:collection"
@@ -26,7 +32,8 @@
     {
       "key": "year",
       "label": "Year",
-      "source": "derived:year"
+      "source": "derived:year",
+      "primary": true
     },
     {
       "key": "tag",
