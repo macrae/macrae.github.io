@@ -158,15 +158,17 @@
     // A badge saying how many takes this tile stands for, shown only while
     // collapsed -- on the full grid every take is already on screen.
     tiles.forEach(function (tile) {
-      var badge = tile.querySelector(".sm-takes");
+      var badge = tile.querySelector("a.sm-takes, span.sm-takes");
       var it = bySlug[tile.dataset.slug];
       var n = it ? counts[it.r] : 1;
       if (seriesMode && n > 1) {
         if (!badge) {
-          badge = document.createElement("span");
+          badge = document.createElement("a");
           badge.className = "sm-takes";
           tile.appendChild(badge);
         }
+        badge.href = "/gallery/series/" + it.rs + "/";
+        badge.title = "See all " + n + " takes of this prompt";
         badge.textContent = n + " takes";
         badge.hidden = false;
       } else if (badge) {

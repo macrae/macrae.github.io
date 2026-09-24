@@ -48,12 +48,25 @@ def plan(corpus, *, check_internal=None, include_unpublished=False):
 
     put("gallery", gallery.render_gallery(corpus, include_unpublished))
     images = gallery.load(include_unpublished)
+    # One page per run of a prompt, and a back-link from each take to it.
+    runs = gallery.series_groups(images)
+    member_of = {}
+    for key, members in runs.items():
+        put("series", gallery.render_series(corpus, key, members),
+            slug=gallery.series_slug(key))
+        for m in members:
+            member_of[m["id"]] = (key, len(members))
+    for image in images:
+        if image["id"] in member_of:
+            image["_series"] = member_of[image["id"]]
+
     for n, image in enumerate(images):
         put("image",
             gallery.render_image(corpus, image,
                                  (images[n - 1] if n else None,
                                   images[n + 1] if n + 1 < len(images) else None)),
             slug=gallery.slug_for(image))
+
     # Only the published images are copied, so an unpublished one is not
     # sitting on the server for anyone who guesses its filename.
     for image in images:

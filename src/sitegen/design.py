@@ -377,6 +377,16 @@ _GALLERY = """
   pointer-events: none;
 }
 
+.sm-param-list { list-style: none; padding: 0; margin: 0.6rem 0 0;
+                 display: flex; flex-direction: column; gap: 0.35rem; }
+.sm-param-list code { font-family: var(--sm-mono); font-size: 0.8rem;
+                      background: var(--sm-paper-sunk); padding: 0.2em 0.5em;
+                      border-radius: 3px; }
+/* While collapsed the badge is a LINK to the whole run, so the obvious click
+   goes to the interesting thing rather than to one frame of it. */
+a.sm-takes { pointer-events: auto; text-decoration: none; }
+a.sm-takes:hover { background: var(--sm-accent); }
+
 .sm-more-wrap { text-align: center; margin: 1.6rem 0 0; }
 .sm-more {
   font-family: var(--sm-sans); font-size: 0.82rem; padding: 0.5rem 1.4rem;

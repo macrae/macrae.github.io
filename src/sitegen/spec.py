@@ -66,6 +66,10 @@ PAGE_KINDS = (
     # two, because an image's facts and its curation are one row.
     ("gallery",    "gallery/index.html",               "generated"),
     ("image",      "gallery/{slug}/index.html",        "generated"),
+    # A SERIES IS THE ARTIFACT. This archive was made by re-running one
+    # prompt to see what the model does differently, so the interesting
+    # object is often the whole run rather than any frame of it.
+    ("series",     "gallery/series/{slug}/index.html", "generated"),
     ("project",    "projects/{slug}/index.html",       "authored"),
     ("about",      "about/index.html",                 "authored"),
     ("notfound",   "404.html",                         "generated"),

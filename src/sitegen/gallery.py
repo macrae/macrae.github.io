@@ -99,6 +99,29 @@ def tags(images):
     return dict(sorted(out.items()))
 
 
+RESERVED_IMAGE_SLUGS = frozenset({"series", "images"})
+
+
+def series_slug(key):
+    """A stable, readable path for a series.
+
+    The hash suffix is not decoration: two prompts can slugify identically
+    once punctuation goes, and a collision here would merge two runs into one
+    page -- the same class of bug that once merged 542 images onto 135 files.
+    """
+    import hashlib
+    base = spec.slugify(key)[:70].strip("-") or "series"
+    return f"{base}-{hashlib.sha1(key.encode()).hexdigest()[:6]}"
+
+
+def series_groups(images):
+    """{key: [images]} newest-first, only runs with more than one take."""
+    out = {}
+    for i in images:
+        out.setdefault(series_of(i), []).append(i)
+    return {k: v for k, v in out.items() if len(v) > 1}
+
+
 def series_index(images):
     """{series key: [slugs]}, newest first within each."""
     out = {}
@@ -117,6 +140,7 @@ def _client_index_with_facets(images, per_image):
         "p": (i.get("prompt") or "")[:400],
         "x": f,
         "r": series_of(i),
+        "rs": series_slug(series_of(i)),
     } for i, f in zip(images, per_image)]
 
 
@@ -219,6 +243,56 @@ def render_gallery(corpus, include_unpublished=False):
                        scripts=[{"src": "/assets/" + s} for s in SCRIPTS])
 
 
+def render_series(corpus, key, images):
+    """One prompt, every take of it, laid out together."""
+    first = images[0]
+    prompt = first.get("prompt") or key
+    dates = sorted({i.get("date") for i in images if i.get("date")})
+    jobs = len({i.get("job_id") for i in images if i.get("job_id")})
+    param_sets = sorted({
+        " ".join(f"--{k} {v}" if v is not True else f"--{k}"
+                 for k, v in sorted((i.get("parameters") or {}).items()))
+        for i in images})
+    param_sets = [p for p in param_sets if p]
+
+    meta = [f"{len(images)} takes"]
+    if jobs > 1:
+        meta.append(f"{jobs} separate runs")
+    if dates:
+        meta.append(dates[0] if dates[0] == dates[-1] else f"{dates[0]} \u2013 {dates[-1]}")
+
+    varied = ""
+    if len(param_sets) > 1:
+        rows = "".join(f"<li><code>{esc(p)}</code></li>" for p in param_sets)
+        varied = (f'<h2 class="sm-section-head">Parameters that varied</h2>'
+                  f'<ul class="sm-param-list">{rows}</ul>')
+    elif param_sets:
+        varied = (f'<p class="sm-meta">Every take: <code>'
+                  f'{esc(param_sets[0])}</code></p>')
+
+    tiles = "".join(
+        f'<a class="sm-tile" href="{esc(spec.url_for("image", slug=slug_for(i)))}">'
+        f'<img src="{esc("/gallery/images/" + i["thumb"])}" '
+        f'alt="{esc((i.get("title") or prompt)[:110])}" '
+        f'width="{i["width"]}" height="{i["height"]}" loading="lazy" '
+        f'decoding="async"></a>'
+        for i in images)
+
+    body = (f'<h1 class="sm-title" style="font-size:1.7rem">'
+            f'{esc((first.get("title") or prompt)[:90])}</h1>'
+            f'<p class="sm-dateline">{" &middot; ".join(esc(m) for m in meta)} '
+            f'&middot; <a href="{esc(spec.url_for("gallery"))}">all images</a></p>'
+            f'<p class="sm-prompt">{esc(prompt)}</p>'
+            + varied
+            + f'<h2 class="sm-section-head">Every take</h2>'
+            + f'<div class="sm-grid">{tiles}</div>')
+    return chrome.page(title=(first.get("title") or prompt)[:70],
+                       body=body, current="gallery", wide=True,
+                       description=f"{len(images)} takes of one prompt.",
+                       url=spec.url_for("series", slug=series_slug(key)),
+                       image="/gallery/images/" + first["file"])
+
+
 def render_image(corpus, image, neighbours):
     s = slug_for(image)
     prev_img, next_img = neighbours
@@ -226,6 +300,10 @@ def render_image(corpus, image, neighbours):
     params = image.get("parameters") or {}
 
     nav = []
+    if image.get("_series"):
+        key, n = image["_series"]
+        nav.append(f'<a href="{esc(spec.url_for("series", slug=series_slug(key)))}">'
+                   f'1 of {n} takes &rarr;</a>')
     if prev_img:
         nav.append(f'<a href="{esc(spec.url_for("image", slug=slug_for(prev_img)))}">'
                    f'&larr; previous</a>')

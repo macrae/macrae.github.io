@@ -186,3 +186,54 @@ def test_a_published_image_has_its_full_size_generated():
     assert not missing, (
         f"{len(missing)} published image(s) have no full-size file. "
         f"Run: python tools/gallery_ingest.py --publish-full   e.g. {missing[:3]}")
+
+
+def test_a_series_page_holds_every_take(tree):
+    """A prompt re-run is the artifact, so its page must show the whole run,
+    not a sample of it."""
+    images = gallery.load()
+    runs = gallery.series_groups(images)
+    if not runs:
+        pytest.skip("no multi-take runs among the published images")
+    checked = 0
+    for key, members in runs.items():
+        page = tree / "gallery" / "series" / gallery.series_slug(key) / "index.html"
+        assert page.exists(), f"no series page for {key[:40]!r}"
+        html = page.read_text(encoding="utf-8")
+        tiles = re.findall(r'class="sm-tile"', html)
+        assert len(tiles) == len(members), (
+            f"{key[:40]!r}: {len(tiles)} tiles for {len(members)} takes")
+        checked += 1
+    assert checked >= 1
+
+
+def test_series_slugs_are_unique():
+    """Two prompts can slugify identically once punctuation is stripped, and a
+    collision would merge two runs onto one page -- the same failure that once
+    put 542 images onto 135 files."""
+    images = gallery.load(include_unpublished=True)
+    keys = list(gallery.series_groups(images))
+    slugs = [gallery.series_slug(k) for k in keys]
+    assert len(slugs) == len(set(slugs)), "two runs share a page"
+    assert len(keys) >= 1
+
+
+def test_an_image_cannot_shadow_the_series_path():
+    """/gallery/series/ must not be reachable as an image slug."""
+    assert "series" in gallery.RESERVED_IMAGE_SLUGS
+    for image in gallery.load(include_unpublished=True):
+        assert gallery.slug_for(image) not in gallery.RESERVED_IMAGE_SLUGS
+
+
+def test_images_with_no_text_prompt_are_not_one_series():
+    """43 images were generated from an image prompt alone, so their metadata
+    is nothing but parameters. Grouping on prompt text put all 43 into a
+    single 'untitled' run -- 43 unrelated pictures collapsed into one idea."""
+    images = gallery.load(include_unpublished=True)
+    textless = [i for i in images
+                if not re.sub(r"--\w+(\s+\S+)?", " ", i.get("prompt") or "").strip()]
+    if len(textless) < 2:
+        pytest.skip("no prompt-less images to check")
+    keys = {gallery.series_of(i) for i in textless}
+    assert len(keys) == len(textless), (
+        f"{len(textless)} prompt-less images collapsed into {len(keys)} series")
