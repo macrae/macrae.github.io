@@ -74,5 +74,5 @@ def test_the_hidden_attribute_actually_hides():
 
     # And every class the renderers ship with a `hidden` attribute must be
     # covered by it rather than relying on having no display rule of its own.
-    for cls in ("sm-lightbox", "sm-controls", "sm-tile"):
+    for cls in ("sm-lightbox", "sm-tile", "sm-clear", "sm-play"):
         assert f".{cls}" in css, f"{cls} vanished; update this test"

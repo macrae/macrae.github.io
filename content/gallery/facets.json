@@ -1,0 +1,62 @@
+{
+  "_comment": [
+    "How the gallery groups itself. EDITABLE DATA, not code.",
+    "",
+    "Three kinds of facet, in increasing order of how much they assume:",
+    "",
+    "  field    read straight off the image record. Collection and tags are",
+    "           yours; nothing infers them.",
+    "  derived  computed from stored metadata -- dimensions, Midjourney",
+    "           parameters. Always true, never a guess.",
+    "  lexicon  matched against the prompt text using the terms below. This is",
+    "           the only kind that can be WRONG, which is why the terms are",
+    "           written down here where you can see and change them rather",
+    "           than inferred by something you would have to argue with.",
+    "",
+    "A lexicon term matches on whole words only, so 'gold' does not fire on",
+    "'golden retriever' by accident but 'golden' does, because it is listed.",
+    "Delete a group and it disappears from the panel. Add one and it appears."
+  ],
+  "groups": [
+    { "key": "collection",  "label": "Collection",  "source": "field:collection" },
+    { "key": "tag",         "label": "Tags",        "source": "field:tags" },
+    { "key": "orientation", "label": "Shape",       "source": "derived:orientation" },
+    { "key": "version",     "label": "Model",       "source": "derived:parameter:v",
+      "prefix": "v" },
+    { "key": "ratio",       "label": "Aspect",      "source": "derived:parameter:ar" },
+
+    { "key": "material", "label": "Material", "source": "lexicon", "terms": {
+        "gold":    ["gold", "golden", "gilded", "brass"],
+        "crystal": ["crystal", "crystalline", "aquamarine", "gem", "gems", "sapphire", "diamond", "amethyst", "emerald", "ruby"],
+        "stone":   ["stone", "granite", "marble", "carved", "rock"],
+        "glass":   ["glass", "transparent", "translucent", "clear"],
+        "metal":   ["metal", "metallic", "steel", "chrome", "iron", "aluminium", "aluminum"],
+        "wood":    ["wood", "wooden", "oak", "timber"],
+        "organic": ["organic", "multicellular", "cellular", "flesh", "bone", "tissue", "coral"],
+        "plastic": ["plastic", "vinyl", "rubber"]
+      }
+    },
+    { "key": "condition", "label": "Condition", "source": "lexicon", "terms": {
+        "weathered": ["weathered", "battered", "battle-scarred", "scarred", "worn", "cracked", "rusted", "distressed"],
+        "pristine":  ["pristine", "immaculate", "flawless", "mint"],
+        "handmade":  ["handmade", "handcrafted", "artisan", "crafted"]
+      }
+    },
+    { "key": "light", "label": "Light", "source": "lexicon", "terms": {
+        "glowing":  ["glowing", "glow", "luminous", "radiant", "shimmering", "sparkling"],
+        "neon":     ["neon", "fluorescent"],
+        "dark":     ["dark", "shadow", "shadowy", "noir", "moody"],
+        "daylight": ["daylight", "sunlit", "sunny", "bright"]
+      }
+    },
+    { "key": "style", "label": "Style", "source": "lexicon", "terms": {
+        "photographic": ["photograph", "photographic", "photorealistic", "photoreal", "dslr", "35mm"],
+        "illustrated":  ["illustration", "illustrated", "drawing", "sketch", "painted", "watercolor", "watercolour"],
+        "3d":           ["3d", "render", "rendered", "cgi", "octane"],
+        "diagram":      ["diagram", "schematic", "blueprint", "instruction", "manual", "exploded"],
+        "vintage":      ["vintage", "retro", "nostalgic", "80s", "1980s", "90s"],
+        "industrial":   ["industrial", "rugged", "utilitarian", "practical", "tool", "tools"]
+      }
+    }
+  ]
+}

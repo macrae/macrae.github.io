@@ -17,7 +17,7 @@ every image, read every prompt, and follow every tag.
 import json
 from pathlib import Path
 
-from . import chrome, spec
+from . import chrome, facets, spec
 from .chrome import esc
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -57,6 +57,18 @@ def tags(images):
     return dict(sorted(out.items()))
 
 
+def _client_index_with_facets(images, per_image):
+    """The smallest thing the filter needs, including each image's facets so
+    the browser never has to re-derive them."""
+    return [{
+        "s": slug_for(i),
+        "f": i["file"],
+        "a": i.get("title") or "",
+        "p": (i.get("prompt") or "")[:400],
+        "x": f,
+    } for i, f in zip(images, per_image)]
+
+
 def _client_index(images):
     """The smallest thing the filter needs. Kept lean on purpose: this is
     inlined into the page as a data island, and a few hundred rows of prompt
@@ -93,44 +105,54 @@ def render_gallery(corpus):
         return chrome.page(title="Gallery", body=body, current="gallery",
                            url=spec.url_for("gallery"), wide=True)
 
-    cols, tag_map = collections(images), tags(images)
-    chips = ['<button class="sm-chip is-on" data-filter="all">All '
-             f'<span>{len(images)}</span></button>']
-    for name, items in cols.items():
-        chips.append(f'<button class="sm-chip" data-filter="c:{esc(name)}">'
-                     f'{esc(name)} <span>{len(items)}</span></button>')
-    for name, items in tag_map.items():
-        chips.append(f'<button class="sm-chip" data-filter="g:{esc(name)}">'
-                     f'{esc(name)} <span>{len(items)}</span></button>')
+    groups, per_image = facets.panel(images)
 
-    data = json.dumps(_client_index(images), separators=(",", ":"))
+    # THE PANEL IS RENDERED SERVER-SIDE AS REAL LINKS. Each pill is an <a> to
+    # the gallery with a filter in the fragment, so with JavaScript off it is
+    # still a readable, linkable index of what the collection contains -- it
+    # just does not filter in place. The script upgrades them to buttons.
+    panels = []
+    for group in groups:
+        pills = "".join(
+            f'<li><a class="sm-pill" data-group="{esc(group["key"])}" '
+            f'data-value="{esc(value)}" '
+            f'href="{esc(spec.url_for("gallery"))}#{esc(group["key"])}={esc(value)}">'
+            f'{esc(value)}<span>{count}</span></a></li>'
+            for value, count in group["values"])
+        panels.append(
+            f'<section class="sm-facet" data-kind="{esc(group["kind"])}">'
+            f'<h2>{esc(group["label"])}</h2>'
+            f'<ul class="sm-pills sm-facet-pills">{pills}</ul>'
+            f'</section>')
+
+    data = json.dumps(_client_index_with_facets(images, per_image),
+                      separators=(",", ":"))
 
     body = (
         '<h1 class="sm-title">Gallery</h1>'
-        f'<p class="sm-dateline">{len(images)} images'
-        + (f' &middot; {len(cols)} collections' if cols else "")
-        + (f' &middot; {len(tag_map)} tags' if tag_map else "") + '</p>'
+        f'<p class="sm-dateline" id="sm-count">{len(images)} images</p>'
 
-        # Controls are hidden until the script proves it is running, so a
-        # reader without JavaScript never sees buttons that do nothing.
-        f'<div class="sm-controls" hidden>'
-        f'<div class="sm-chips">{"".join(chips)}</div>'
-        f'<button class="sm-play" type="button">Slideshow</button>'
+        '<div class="sm-gallery-layout">'
+
+        f'<aside class="sm-panel">'
+        f'<div class="sm-panel-head">'
+        f'<button class="sm-clear" type="button" hidden>Clear filters</button>'
+        f'<button class="sm-play" type="button" hidden>Slideshow</button>'
         f'</div>'
+        + "".join(panels) +
+        f'<noscript><p class="sm-meta">These are links: each one lists what '
+        f'the collection holds. Filtering in place, the lightbox and the '
+        f'slideshow need JavaScript.</p></noscript>'
+        f'</aside>'
 
         f'<div class="sm-grid" id="sm-grid">'
         + "".join(_tile(i) for i in images)
         + '</div>'
 
-        # The data island. Not a script: a script tag with a body would fail
-        # the site's own validator, and rightly.
+        '</div>'
+
         f'<script type="application/json" id="sm-gallery-data">{data}</script>'
 
-        f'<noscript><p class="sm-meta">Filters and the slideshow need '
-        f'JavaScript. Every image below still opens on its own page, with its '
-        f'prompt.</p></noscript>'
-
-        # The lightbox shell, empty until the script fills it.
         f'<div class="sm-lightbox" id="sm-lightbox" hidden>'
         f'<button class="sm-lb-close" type="button" aria-label="Close">&times;</button>'
         f'<button class="sm-lb-prev" type="button" aria-label="Previous">&#8249;</button>'

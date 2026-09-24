@@ -86,8 +86,20 @@ def test_the_grid_works_without_javascript(tree):
         checked += 1
     assert checked >= 10
     assert "<noscript" in html
-    # Controls start hidden so a reader without JS never sees a dead button.
-    assert 'class="sm-controls" hidden' in html
+
+    # Buttons that only work with JavaScript start hidden, so a reader without
+    # it never sees a dead control.
+    for cls in ("sm-clear", "sm-play"):
+        assert f'class="{cls}" type="button" hidden' in html, (
+            f"{cls} does not start hidden")
+
+    # EVERY FACET PILL IS A REAL LINK, not a button the script has to rescue.
+    # With JavaScript off the panel is still a readable, linkable index of
+    # what the collection contains.
+    pill_links = re.findall(r'<a class="sm-pill"[^>]*href="([^"]+)"', html)
+    assert len(pill_links) >= 8, f"only {len(pill_links)} facet pills are links"
+    for href in pill_links:
+        assert href.startswith("/gallery/#"), f"pill links off-gallery: {href}"
 
 
 def test_the_only_scripts_are_the_declared_one_and_a_json_island(tree):

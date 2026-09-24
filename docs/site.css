@@ -233,27 +233,62 @@ figcaption b, figcaption strong { color: var(--sm-ink-soft); font-weight: 600; }
 .sm-depart-card:hover { border-color: var(--sm-depart); }
 .sm-depart-card strong { display: block; font-size: 1.15rem; margin-bottom: 0.25rem; color: var(--sm-ink); }
 .sm-depart-card span { font-family: var(--sm-sans); font-size: 0.9rem; color: var(--sm-ink-soft); }
-.sm-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
-               margin: 0 0 1.6rem; }
-.sm-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-.sm-chip {
-  font-family: var(--sm-sans); font-size: 0.78rem; padding: 0.28rem 0.7rem;
-  border: 1px solid var(--sm-rule); border-radius: 999px; background: none;
-  color: var(--sm-ink-soft); cursor: pointer;
-}
-.sm-chip span { color: var(--sm-ink-faint); font-variant-numeric: tabular-nums; }
-.sm-chip:hover { border-color: var(--sm-accent); color: var(--sm-accent); }
-.sm-chip.is-on { background: var(--sm-ink); color: var(--sm-paper); border-color: var(--sm-ink); }
-.sm-chip.is-on span { color: var(--sm-paper-sunk); }
-.sm-play {
-  font-family: var(--sm-sans); font-size: 0.78rem; padding: 0.28rem 0.9rem;
-  border: 1px solid var(--sm-depart); border-radius: 999px; background: none;
-  color: var(--sm-depart); cursor: pointer; margin-left: auto;
+/* Panel beside the grid on a wide screen, above it on a narrow one. The panel
+   is `position: sticky` so the facets stay reachable while the grid scrolls --
+   a filter you have to scroll back up to reach is a filter people stop
+   using. */
+.sm-gallery-layout { display: grid; grid-template-columns: 210px 1fr; gap: 2rem; }
+@media (max-width: 52rem) {
+  .sm-gallery-layout { grid-template-columns: 1fr; gap: 1.2rem; }
+  .sm-panel { position: static !important; max-height: none !important; }
+  .sm-facet-pills { flex-direction: row !important; }
 }
 
-/* A column grid rather than a fixed one: images are mixed aspect ratios and a
-   square grid crops or letterboxes every one of them. */
-.sm-grid { columns: 260px; column-gap: 0.7rem; }
+.sm-panel {
+  position: sticky; top: 1.5rem; align-self: start;
+  max-height: calc(100vh - 3rem); overflow-y: auto;
+  font-family: var(--sm-sans);
+}
+.sm-panel-head { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.2rem; }
+.sm-clear, .sm-play {
+  font-family: var(--sm-sans); font-size: 0.74rem; letter-spacing: 0.04em;
+  padding: 0.3rem 0.75rem; border-radius: 999px; background: none; cursor: pointer;
+  border: 1px solid var(--sm-rule); color: var(--sm-ink-soft);
+}
+.sm-clear:hover { border-color: var(--sm-accent); color: var(--sm-accent); }
+.sm-play { border-color: var(--sm-depart); color: var(--sm-depart); }
+
+.sm-facet { margin: 0 0 1.4rem; }
+.sm-facet h2 {
+  font-size: 0.7rem; letter-spacing: 0.11em; text-transform: uppercase;
+  color: var(--sm-ink-faint); margin: 0 0 0.5rem; font-weight: 600;
+}
+/* A lexicon facet is a GUESS from prompt text, unlike a field or a measured
+   dimension. The dotted rule is the quietest honest way to say so. */
+.sm-facet[data-kind="lexicon"] h2 { border-bottom: 1px dotted var(--sm-rule); padding-bottom: 0.3rem; }
+
+.sm-facet-pills { display: flex; flex-direction: column; gap: 0.3rem;
+                  flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+.sm-pill {
+  display: inline-flex; align-items: baseline; gap: 0.4rem;
+  font-size: 0.8rem; padding: 0.22rem 0.62rem; border-radius: 999px;
+  border: 1px solid var(--sm-rule); text-decoration: none;
+  color: var(--sm-ink-soft); background: none; cursor: pointer;
+  transition: border-color 0.1s ease-in, color 0.1s ease-in;
+}
+.sm-pill span { font-size: 0.72rem; color: var(--sm-ink-faint);
+                font-variant-numeric: tabular-nums; }
+.sm-pill:hover { border-color: var(--sm-accent); color: var(--sm-accent); }
+.sm-pill.is-on { background: var(--sm-ink); color: var(--sm-paper);
+                 border-color: var(--sm-ink); }
+.sm-pill.is-on span { color: var(--sm-paper-sunk); }
+/* Dimmed, not removed: a facet that vanishes when you pick something else
+   makes the collection feel smaller than it is. */
+.sm-pill.is-off { opacity: 0.35; }
+
+/* A column grid rather than a fixed one: these are mixed aspect ratios and a
+   square grid either crops or letterboxes every single one. */
+.sm-grid { columns: 240px; column-gap: 0.7rem; }
 .sm-tile { display: block; margin: 0 0 0.7rem; break-inside: avoid; line-height: 0; }
 .sm-tile img { width: 100%; height: auto; border-radius: 2px;
                transition: opacity 0.12s ease-in; }
@@ -266,11 +301,12 @@ figcaption b, figcaption strong { color: var(--sm-ink-soft); font-weight: 600; }
 }
 .sm-lb-fig { margin: 0; max-width: 92vw; max-height: 88vh; display: flex;
              flex-direction: column; gap: 0.7rem; }
-.sm-lb-fig img { max-width: 100%; max-height: 78vh; object-fit: contain;
+.sm-lb-fig img { max-width: 100%; max-height: 76vh; object-fit: contain;
                  border-radius: 2px; }
-.sm-lb-fig figcaption { font-family: var(--sm-sans); font-size: 0.82rem;
+.sm-lb-fig figcaption { font-family: var(--sm-sans); font-size: 0.8rem;
                         line-height: 1.5; color: #b9b2a3; max-width: 46rem;
-                        margin: 0 auto; text-align: center; }
+                        margin: 0 auto; text-align: center;
+                        max-height: 8em; overflow-y: auto; }
 .sm-lightbox button {
   background: none; border: 0; color: #b9b2a3; font-size: 2.4rem; line-height: 1;
   cursor: pointer; padding: 0.4rem 0.8rem; flex: 0 0 auto;
@@ -286,7 +322,11 @@ figcaption b, figcaption strong { color: var(--sm-ink-soft); font-weight: 600; }
   padding: 0.9rem 1.1rem; color: var(--sm-ink-soft); white-space: pre-wrap;
 }
 
-@media print { .sm-controls, .sm-lightbox { display: none; } .sm-grid { columns: 2; } }
+@media print {
+  .sm-panel, .sm-lightbox { display: none; }
+  .sm-gallery-layout { display: block; }
+  .sm-grid { columns: 2; }
+}
 pre {
   font-family: var(--sm-mono); font-size: 0.84rem; line-height: 1.5;
   background: var(--sm-paper-sunk); border: 1px solid var(--sm-rule-soft);
