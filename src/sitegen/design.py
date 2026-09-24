@@ -394,6 +394,16 @@ main.sm-gallery-wide { max-width: var(--sm-gallery); }
   pointer-events: none;
 }
 
+.sm-more-values { margin: 0.35rem 0 0; }
+.sm-more-values > summary {
+  cursor: pointer; font-family: var(--sm-sans); font-size: 0.72rem;
+  color: var(--sm-ink-faint); padding: 0.2rem 0.1rem; list-style: none;
+}
+.sm-more-values > summary::before { content: "+ "; }
+.sm-more-values[open] > summary::before { content: "\2212 "; }
+.sm-more-values > summary:hover { color: var(--sm-accent); }
+.sm-more-values > ul { margin-top: 0.3rem; }
+
 .sm-more-facets { margin: 0.4rem 0 1.4rem; }
 .sm-more-facets > summary {
   cursor: pointer; font-family: var(--sm-sans); font-size: 0.7rem;

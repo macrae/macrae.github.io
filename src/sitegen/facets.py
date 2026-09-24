@@ -60,15 +60,32 @@ def _words(text):
     return set(re.findall(r"[a-z0-9][a-z0-9'-]*", (text or "").lower()))
 
 
-def lexicon_hits(image, terms):
-    """Whole-word matches only. Hyphenated terms are checked as phrases too,
-    because "battle-scarred" survives tokenisation in some prompts and splits
-    in others."""
+HEAD_WORDS = 25
+MIN_MEMBERS = 5
+
+
+def lexicon_hits(image, terms, scope="whole"):
+    """Whole-word matches, with exclusion phrases.
+
+    A term prefixed with "!" is a phrase that BLOCKS the match. Whole-word
+    matching alone put "game boy" under portrait 69 times, "punk rock" under
+    stone, "bird house" under architecture, and Mister Sinister -- an X-Men
+    character -- under horror. The word was right and the sense was wrong, and
+    a facet that is wrong is worse than one that is missing: the reader cannot
+    tell, they just get the wrong pictures.
+    """
     prompt = (image.get("prompt") or "").lower()
+    if scope == "head":
+        prompt = " ".join(prompt.split()[:HEAD_WORDS])
     words = _words(prompt)
     out = []
     for label, needles in sorted(terms.items()):
+        blocks = [n[1:].lower() for n in needles if n.startswith("!")]
+        if any(b in prompt for b in blocks):
+            continue
         for needle in needles:
+            if needle.startswith("!"):
+                continue
             n = needle.lower()
             if n in words or ("-" in n and n in prompt) or (" " in n and n in prompt):
                 out.append(label)
@@ -110,7 +127,8 @@ def for_image(image):
             if raw and raw is not True:
                 values = [f"{group.get('prefix', '')}{raw}"]
         elif source == "lexicon":
-            values = lexicon_hits(image, group.get("terms") or {})
+            values = lexicon_hits(image, group.get("terms") or {},
+                                  group.get("scope", "whole"))
 
         if values:
             out[key] = values
@@ -130,6 +148,12 @@ def panel(images):
         for facets in per_image:
             for value in facets.get(group["key"], []):
                 counts[value] = counts.get(value, 0) + 1
+        # A VALUE WITH ALMOST NO MEMBERS IS NOISE IN THE PANEL. It survives
+        # in the data -- nothing is lost -- but a pill that narrows 1,500
+        # images to two is a pill nobody wants to click, and there were
+        # sixty-four of them.
+        counts = {v: n for v, n in counts.items() if n >= MIN_MEMBERS}
+
         # A GROUP WITH ONE VALUE FILTERS NOTHING. Every image is in it, so
         # clicking it changes the grid not at all -- it is a label wearing a
         # button's clothes, and there were sixty-four buttons already.

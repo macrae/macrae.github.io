@@ -96,8 +96,16 @@ def test_the_grid_works_without_javascript(tree):
     # EVERY FACET PILL IS A REAL LINK, not a button the script has to rescue.
     # With JavaScript off the panel is still a readable, linkable index of
     # what the collection contains.
+    # THE INVARIANT IS THAT EVERY PILL IS A LINK, not that there are many.
+    # The floor here was 8, which held while the preview was being used and
+    # broke against docs/ -- only 15 images are published, so there are only
+    # two facet values to render. A test that depends on how much has been
+    # curated is a test that fails for a reason that is not a defect.
+    all_pills = re.findall(r'<a class="sm-pill"[^>]*>', html)
     pill_links = re.findall(r'<a class="sm-pill"[^>]*href="([^"]+)"', html)
-    assert len(pill_links) >= 8, f"only {len(pill_links)} facet pills are links"
+    assert len(pill_links) == len(all_pills), (
+        f"{len(all_pills) - len(pill_links)} pills are not links")
+    assert pill_links, "no facet pills at all"
     for href in pill_links:
         assert href.startswith("/gallery/#"), f"pill links off-gallery: {href}"
 

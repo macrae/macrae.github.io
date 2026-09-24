@@ -210,17 +210,30 @@ def render_gallery(corpus, include_unpublished=False):
     # the gallery with a filter in the fragment, so with JavaScript off it is
     # still a readable, linkable index of what the collection contains -- it
     # just does not filter in place. The script upgrades them to buttons.
+    # More than this many values in one group and the panel becomes a wall.
+    # Values are commonest-first, so the ones above the line are the ones most
+    # likely to be wanted; the rest fold into a <details> that needs no
+    # JavaScript, exactly like the secondary groups do.
+    VISIBLE_PER_GROUP = 12
+
+    def pill(group, value, count):
+        return (f'<li><a class="sm-pill" data-group="{esc(group["key"])}" '
+                f'data-value="{esc(value)}" '
+                f'href="{esc(spec.url_for("gallery"))}#{esc(group["key"])}='
+                f'{esc(value)}">{esc(value)}<span>{count}</span></a></li>')
+
     def render_group(group):
-        pills = "".join(
-            f'<li><a class="sm-pill" data-group="{esc(group["key"])}" '
-            f'data-value="{esc(value)}" '
-            f'href="{esc(spec.url_for("gallery"))}#{esc(group["key"])}={esc(value)}">'
-            f'{esc(value)}<span>{count}</span></a></li>'
-            for value, count in group["values"])
+        values = group["values"]
+        head = "".join(pill(group, v, c) for v, c in values[:VISIBLE_PER_GROUP])
+        body = f'<ul class="sm-pills sm-facet-pills">{head}</ul>'
+        rest = values[VISIBLE_PER_GROUP:]
+        if rest:
+            more = "".join(pill(group, v, c) for v, c in rest)
+            body += (f'<details class="sm-more-values"><summary>'
+                     f'{len(rest)} more</summary>'
+                     f'<ul class="sm-pills sm-facet-pills">{more}</ul></details>')
         return (f'<section class="sm-facet" data-kind="{esc(group["kind"])}">'
-                f'<h2>{esc(group["label"])}</h2>'
-                f'<ul class="sm-pills sm-facet-pills">{pills}</ul>'
-                f'</section>')
+                f'<h2>{esc(group["label"])}</h2>{body}</section>')
 
     # PRIMARY GROUPS LEAD; THE REST FOLD AWAY. Sixty-four pills is a filing
     # cabinet, not a filter. Theme (clustered from the prompts themselves) and
