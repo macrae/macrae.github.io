@@ -89,6 +89,11 @@ def for_image(image):
                 values = [image["collection"]]
         elif source == "field:tags":
             values = list(image.get("tags") or [])
+        elif source == "derived:year":
+            # From the date Midjourney recorded in the file, never from a
+            # clock and never from the filename.
+            date = (image.get("date") or "")[:4]
+            values = [date] if date.isdigit() else []
         elif source == "derived:orientation":
             o = orientation(image)
             values = [o] if o else []

@@ -135,3 +135,54 @@ def test_gallery_slugs_cannot_collide_with_an_essay():
     assert "gallery" in spec.RESERVED_SLUGS
     slugs = [gallery.slug_for(i) for i in gallery.load()]
     assert len(slugs) == len(set(slugs)), "two images claim one URL"
+
+
+def test_no_two_images_share_a_file():
+    """542 entries once pointed at 135 files.
+
+    The collision suffix used the first 8 characters of the job UUID, which is
+    IDENTICAL across the four variants of one Midjourney job -- so four
+    different pictures resolved to one filename and overwrote each other.
+    Every count still reconciled: the right number of entries, the right
+    number of tiles, the right prompts. Only the images were wrong, and the
+    only way to see it was to look at the page.
+    """
+    import json
+    raw = json.loads(gallery.INDEX.read_text(encoding="utf-8"))["images"]
+    assert len(raw) >= 15, f"only {len(raw)} entries to check"
+
+    for key in ("file", "thumb"):
+        claimed = {}
+        for image in raw:
+            claimed.setdefault(image[key], []).append(image["id"])
+        shared = {f: ids for f, ids in claimed.items() if len(ids) > 1}
+        assert not shared, (
+            f"{len(shared)} {key} name(s) claimed by more than one image, e.g. "
+            f"{list(shared.items())[:2]}")
+
+
+def test_every_entry_has_its_thumbnail_on_disk():
+    import json
+    raw = json.loads(gallery.INDEX.read_text(encoding="utf-8"))["images"]
+    checked, missing = 0, []
+    for image in raw:
+        path = gallery.IMAGES / image["thumb"]
+        if not path.exists() or path.stat().st_size == 0:
+            missing.append(image["thumb"])
+        checked += 1
+    assert checked >= 15
+    assert not missing, f"{len(missing)} thumbnails missing, e.g. {missing[:3]}"
+
+
+def test_a_published_image_has_its_full_size_generated():
+    """Thumbnails exist for everything; full sizes are generated on publish.
+    An image marked published without one would render a broken <img>."""
+    import json
+    raw = json.loads(gallery.INDEX.read_text(encoding="utf-8"))["images"]
+    published = [i for i in raw if i.get("status") == "published"]
+    assert published, "nothing published to check"
+    missing = [i["file"] for i in published
+               if not (gallery.IMAGES / i["file"]).exists()]
+    assert not missing, (
+        f"{len(missing)} published image(s) have no full-size file. "
+        f"Run: python tools/gallery_ingest.py --publish-full   e.g. {missing[:3]}")

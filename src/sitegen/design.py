@@ -344,6 +344,15 @@ _GALLERY = """
 .sm-tile img { width: 100%; height: auto; border-radius: 2px;
                transition: opacity 0.12s ease-in; }
 .sm-tile:hover img { opacity: 0.86; }
+/* Preview only: a staged image is dimmed and corner-marked so curating is
+   not guesswork about which of two thousand tiles is already live. */
+.sm-tile[data-staged] img { opacity: 0.55; }
+.sm-tile[data-staged]:hover img { opacity: 0.95; }
+.sm-tile[data-staged]::after {
+  content: ""; position: absolute; top: 5px; right: 5px; width: 7px; height: 7px;
+  border-radius: 50%; background: var(--sm-accent);
+}
+.sm-tile { position: relative; }
 
 .sm-lightbox {
   position: fixed; inset: 0; z-index: 50; background: rgba(12, 11, 9, 0.94);

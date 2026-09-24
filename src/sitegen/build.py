@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 PUBLISH = ROOT / "docs"
 
 
-def plan(corpus, *, check_internal=None):
+def plan(corpus, *, check_internal=None, include_unpublished=False):
     """{relative path: bytes}. The whole site, computed and not yet written."""
     out = {}
 
@@ -46,8 +46,8 @@ def plan(corpus, *, check_internal=None):
     put("sitemap", sitemap.render_sitemap(corpus))
     put("robots", sitemap.render_robots(corpus))
 
-    put("gallery", gallery.render_gallery(corpus))
-    images = gallery.load()
+    put("gallery", gallery.render_gallery(corpus, include_unpublished))
+    images = gallery.load(include_unpublished)
     for n, image in enumerate(images):
         put("image",
             gallery.render_image(corpus, image,
@@ -148,7 +148,7 @@ def main(argv=None):
                  "entry must never reach the deployed tree. Pass --out.")
 
     corpus = content.load(include_unpublished=args.include_unpublished)
-    pages = plan(corpus)
+    pages = plan(corpus, include_unpublished=args.include_unpublished)
     written, removed = write(pages, root=root, prune=not args.no_prune)
 
     print(f"{len(written)} files -> {root.relative_to(ROOT) if root.is_relative_to(ROOT) else root}")

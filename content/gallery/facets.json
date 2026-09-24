@@ -18,44 +18,329 @@
     "Delete a group and it disappears from the panel. Add one and it appears."
   ],
   "groups": [
-    { "key": "collection",  "label": "Collection",  "source": "field:collection" },
-    { "key": "tag",         "label": "Tags",        "source": "field:tags" },
-    { "key": "orientation", "label": "Shape",       "source": "derived:orientation" },
-    { "key": "version",     "label": "Model",       "source": "derived:parameter:v",
-      "prefix": "v" },
-    { "key": "ratio",       "label": "Aspect",      "source": "derived:parameter:ar" },
-
-    { "key": "material", "label": "Material", "source": "lexicon", "terms": {
-        "gold":    ["gold", "golden", "gilded", "brass"],
-        "crystal": ["crystal", "crystalline", "aquamarine", "gem", "gems", "sapphire", "diamond", "amethyst", "emerald", "ruby"],
-        "stone":   ["stone", "granite", "marble", "carved", "rock"],
-        "glass":   ["glass", "transparent", "translucent", "clear"],
-        "metal":   ["metal", "metallic", "steel", "chrome", "iron", "aluminium", "aluminum"],
-        "wood":    ["wood", "wooden", "oak", "timber"],
-        "organic": ["organic", "multicellular", "cellular", "flesh", "bone", "tissue", "coral"],
-        "plastic": ["plastic", "vinyl", "rubber"]
+    {
+      "key": "collection",
+      "label": "Collection",
+      "source": "field:collection"
+    },
+    {
+      "key": "year",
+      "label": "Year",
+      "source": "derived:year"
+    },
+    {
+      "key": "tag",
+      "label": "Tags",
+      "source": "field:tags"
+    },
+    {
+      "key": "orientation",
+      "label": "Shape",
+      "source": "derived:orientation"
+    },
+    {
+      "key": "version",
+      "label": "Model",
+      "source": "derived:parameter:v",
+      "prefix": "v"
+    },
+    {
+      "key": "ratio",
+      "label": "Aspect",
+      "source": "derived:parameter:ar"
+    },
+    {
+      "key": "subject",
+      "label": "Subject",
+      "source": "lexicon",
+      "terms": {
+        "comics": [
+          "comic",
+          "comics",
+          "comiccore",
+          "superhero",
+          "marvel",
+          "dc"
+        ],
+        "portrait": [
+          "portrait",
+          "face",
+          "eyes",
+          "hair",
+          "woman",
+          "man",
+          "girl",
+          "boy"
+        ],
+        "x-men": [
+          "x-men",
+          "wolverine",
+          "magneto",
+          "mutant"
+        ],
+        "architecture": [
+          "architecture",
+          "building",
+          "cathedral",
+          "chapel",
+          "city",
+          "tower",
+          "house"
+        ],
+        "horror": [
+          "horror",
+          "eerie",
+          "sinister",
+          "creepy",
+          "haunted",
+          "monster"
+        ],
+        "landscape": [
+          "landscape",
+          "mountain",
+          "forest",
+          "field",
+          "sunset",
+          "horizon",
+          "ocean"
+        ],
+        "technology": [
+          "computer",
+          "robot",
+          "machine",
+          "circuit",
+          "screen",
+          "terminal"
+        ],
+        "goosebumps": [
+          "goosebumps",
+          "jacobus"
+        ],
+        "animals": [
+          "animal",
+          "dog",
+          "cat",
+          "bird",
+          "sheep",
+          "bunny",
+          "creature"
+        ],
+        "vehicles": [
+          "car",
+          "truck",
+          "wagon",
+          "ship",
+          "train",
+          "motorcycle"
+        ],
+        "space": [
+          "space",
+          "planet",
+          "galaxy",
+          "cosmic",
+          "astronaut",
+          "nebula"
+        ],
+        "food": [
+          "food",
+          "pasta",
+          "bread",
+          "kitchen",
+          "cooking",
+          "meal",
+          "coffee"
+        ]
       }
     },
-    { "key": "condition", "label": "Condition", "source": "lexicon", "terms": {
-        "weathered": ["weathered", "battered", "battle-scarred", "scarred", "worn", "cracked", "rusted", "distressed"],
-        "pristine":  ["pristine", "immaculate", "flawless", "mint"],
-        "handmade":  ["handmade", "handcrafted", "artisan", "crafted"]
+    {
+      "key": "material",
+      "label": "Material",
+      "source": "lexicon",
+      "terms": {
+        "gold": [
+          "gold",
+          "golden",
+          "gilded",
+          "brass"
+        ],
+        "crystal": [
+          "crystal",
+          "crystalline",
+          "aquamarine",
+          "gem",
+          "gems",
+          "sapphire",
+          "diamond",
+          "amethyst",
+          "emerald",
+          "ruby"
+        ],
+        "stone": [
+          "stone",
+          "granite",
+          "marble",
+          "carved",
+          "rock"
+        ],
+        "glass": [
+          "glass",
+          "transparent",
+          "translucent",
+          "clear"
+        ],
+        "metal": [
+          "metal",
+          "metallic",
+          "steel",
+          "chrome",
+          "iron",
+          "aluminium",
+          "aluminum"
+        ],
+        "wood": [
+          "wood",
+          "wooden",
+          "oak",
+          "timber"
+        ],
+        "organic": [
+          "organic",
+          "multicellular",
+          "cellular",
+          "flesh",
+          "bone",
+          "tissue",
+          "coral"
+        ],
+        "plastic": [
+          "plastic",
+          "vinyl",
+          "rubber"
+        ]
       }
     },
-    { "key": "light", "label": "Light", "source": "lexicon", "terms": {
-        "glowing":  ["glowing", "glow", "luminous", "radiant", "shimmering", "sparkling"],
-        "neon":     ["neon", "fluorescent"],
-        "dark":     ["dark", "shadow", "shadowy", "noir", "moody"],
-        "daylight": ["daylight", "sunlit", "sunny", "bright"]
+    {
+      "key": "condition",
+      "label": "Condition",
+      "source": "lexicon",
+      "terms": {
+        "weathered": [
+          "weathered",
+          "battered",
+          "battle-scarred",
+          "scarred",
+          "worn",
+          "cracked",
+          "rusted",
+          "distressed"
+        ],
+        "pristine": [
+          "pristine",
+          "immaculate",
+          "flawless",
+          "mint"
+        ],
+        "handmade": [
+          "handmade",
+          "handcrafted",
+          "artisan",
+          "crafted"
+        ]
       }
     },
-    { "key": "style", "label": "Style", "source": "lexicon", "terms": {
-        "photographic": ["photograph", "photographic", "photorealistic", "photoreal", "dslr", "35mm"],
-        "illustrated":  ["illustration", "illustrated", "drawing", "sketch", "painted", "watercolor", "watercolour"],
-        "3d":           ["3d", "render", "rendered", "cgi", "octane"],
-        "diagram":      ["diagram", "schematic", "blueprint", "instruction", "manual", "exploded"],
-        "vintage":      ["vintage", "retro", "nostalgic", "80s", "1980s", "90s"],
-        "industrial":   ["industrial", "rugged", "utilitarian", "practical", "tool", "tools"]
+    {
+      "key": "light",
+      "label": "Light",
+      "source": "lexicon",
+      "terms": {
+        "glowing": [
+          "glowing",
+          "glow",
+          "luminous",
+          "radiant",
+          "shimmering",
+          "sparkling"
+        ],
+        "neon": [
+          "neon",
+          "fluorescent"
+        ],
+        "dark": [
+          "dark",
+          "shadow",
+          "shadowy",
+          "noir",
+          "moody"
+        ],
+        "daylight": [
+          "daylight",
+          "sunlit",
+          "sunny",
+          "bright"
+        ]
+      }
+    },
+    {
+      "key": "style",
+      "label": "Style",
+      "source": "lexicon",
+      "terms": {
+        "hyper-realistic": [
+          "hyper-realistic",
+          "hyperrealistic",
+          "photorealistic",
+          "photoreal"
+        ],
+        "cinematic": [
+          "cinematic"
+        ],
+        "comiccore": [
+          "comiccore"
+        ],
+        "pop-art": [
+          "pop-art",
+          "pop"
+        ],
+        "oil-painting": [
+          "oil",
+          "painting",
+          "painted"
+        ],
+        "airbrush": [
+          "airbrush",
+          "airbrushed"
+        ],
+        "illustrated": [
+          "illustration",
+          "illustrated",
+          "drawing",
+          "sketch",
+          "watercolor",
+          "watercolour"
+        ],
+        "3d": [
+          "3d",
+          "render",
+          "rendered",
+          "cgi",
+          "octane"
+        ],
+        "diagram": [
+          "diagram",
+          "schematic",
+          "blueprint",
+          "instruction",
+          "manual"
+        ],
+        "vintage": [
+          "vintage",
+          "retro",
+          "nostalgic",
+          "80s",
+          "1980s",
+          "90s",
+          "1970s"
+        ]
       }
     }
   ]

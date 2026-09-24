@@ -30,11 +30,22 @@ IMAGES = ROOT / "content" / "gallery" / "images"
 SCRIPTS = ("gallery.js",)
 
 
-def load():
+def load(include_unpublished=False):
+    """Published images, or everything when previewing.
+
+    `make preview` threads the same flag the posts use, so an archive of a few
+    thousand staged images can be BROWSED in the real gallery -- facets,
+    lightbox and all -- which is the only practical way to curate it. It is
+    the same renderer with a different filter, never a second code path, and
+    the build refuses to write docs/ with the flag set.
+    """
     if not INDEX.exists():
         return []
     data = json.loads(INDEX.read_text(encoding="utf-8"))
-    return [i for i in data.get("images", []) if i.get("status") == "published"]
+    images = data.get("images", [])
+    if include_unpublished:
+        return [i for i in images if i.get("status") != "archived"]
+    return [i for i in images if i.get("status") == "published"]
 
 
 def slug_for(image):
@@ -88,6 +99,7 @@ def _client_index(images):
 
 def _tile(image):
     s = slug_for(image)
+    staged = ' data-staged="1"' if image.get("status") != "published" else ""
     alt = image.get("title") or image.get("prompt", "")[:120] or "Untitled"
     return (f'<a class="sm-tile" href="{esc(spec.url_for("image", slug=s))}" '
             f'data-slug="{esc(s)}">'
@@ -97,8 +109,8 @@ def _tile(image):
             f'</a>')
 
 
-def render_gallery(corpus):
-    images = load()
+def render_gallery(corpus, include_unpublished=False):
+    images = load(include_unpublished)
     if not images:
         body = ('<h1 class="sm-title">Gallery</h1>'
                 '<p class="sm-lede">Nothing published yet.</p>')
