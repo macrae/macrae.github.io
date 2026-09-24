@@ -15,9 +15,10 @@
       "status": "published",
       "title": "Gameboy by Black & Decker",
       "tags": [
-        "brands"
+        "brands",
+        "gameboy"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -37,9 +38,10 @@
       "status": "published",
       "title": "Gameboy by Dewalt",
       "tags": [
-        "brands"
+        "brands",
+        "gameboy"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -59,9 +61,10 @@
       "status": "published",
       "title": "Gameboy by IKEA",
       "tags": [
-        "brands"
+        "brands",
+        "gameboy"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -81,9 +84,10 @@
       "status": "published",
       "title": "Battle-scarred Gameboy",
       "tags": [
+        "gameboy",
         "weathered"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -103,9 +107,10 @@
       "status": "published",
       "title": "Battle-scarred Gameboy (2)",
       "tags": [
+        "gameboy",
         "weathered"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -125,9 +130,10 @@
       "status": "published",
       "title": "The Crystal Gameboy",
       "tags": [
+        "gameboy",
         "materials"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -147,9 +153,10 @@
       "status": "published",
       "title": "The Crystal Gameboy (2)",
       "tags": [
+        "gameboy",
         "materials"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -169,9 +176,10 @@
       "status": "published",
       "title": "Clear Gameboy",
       "tags": [
+        "gameboy",
         "materials"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -191,9 +199,10 @@
       "status": "published",
       "title": "The Gameboy Grail",
       "tags": [
+        "gameboy",
         "materials"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -213,9 +222,10 @@
       "status": "published",
       "title": "The Gameboy Grail (2)",
       "tags": [
+        "gameboy",
         "materials"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -235,9 +245,10 @@
       "status": "published",
       "title": "The Multicellular Gameboy",
       "tags": [
+        "gameboy",
         "materials"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -257,9 +268,10 @@
       "status": "published",
       "title": "The Multicellular Gameboy (2)",
       "tags": [
+        "gameboy",
         "materials"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -279,9 +291,10 @@
       "status": "published",
       "title": "Punk Rock Gameboy",
       "tags": [
+        "gameboy",
         "weathered"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -301,9 +314,10 @@
       "status": "published",
       "title": "Punk Rock Gameboy (2)",
       "tags": [
+        "gameboy",
         "weathered"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -323,9 +337,10 @@
       "status": "published",
       "title": "Gameboy by REI",
       "tags": [
-        "brands"
+        "brands",
+        "gameboy"
       ],
-      "collection": "gameboy",
+      "collection": "midjourney",
       "caption": null,
       "date": "2023-01-07",
       "author": "sdotmac"
@@ -39678,7 +39693,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -39702,7 +39717,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -39726,7 +39741,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -39750,7 +39765,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41466,7 +41481,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41490,7 +41505,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41514,7 +41529,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41538,7 +41553,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41562,7 +41577,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41586,7 +41601,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41610,7 +41625,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41634,7 +41649,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41658,7 +41673,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41682,7 +41697,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41706,7 +41721,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41730,7 +41745,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41754,7 +41769,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41778,7 +41793,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41802,7 +41817,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41826,7 +41841,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41850,7 +41865,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41874,7 +41889,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41898,7 +41913,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41922,7 +41937,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41946,7 +41961,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41970,7 +41985,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -41994,7 +42009,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -42018,7 +42033,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -42462,7 +42477,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -42486,7 +42501,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -42510,7 +42525,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -42534,7 +42549,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55381,7 +55396,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55405,7 +55420,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55429,7 +55444,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55453,7 +55468,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55477,7 +55492,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55693,7 +55708,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55717,7 +55732,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55741,7 +55756,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55765,7 +55780,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -55981,7 +55996,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56005,7 +56020,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56029,7 +56044,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56053,7 +56068,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56077,7 +56092,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56421,7 +56436,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56445,7 +56460,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56469,7 +56484,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56493,7 +56508,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56613,7 +56628,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56637,7 +56652,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56661,7 +56676,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56685,7 +56700,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56709,7 +56724,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56733,7 +56748,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56757,7 +56772,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56781,7 +56796,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -56805,7 +56820,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57521,7 +57536,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57545,7 +57560,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57569,7 +57584,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57593,7 +57608,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57713,7 +57728,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57737,7 +57752,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57761,7 +57776,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57785,7 +57800,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57809,7 +57824,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57833,7 +57848,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57857,7 +57872,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57881,7 +57896,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57905,7 +57920,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57929,7 +57944,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57953,7 +57968,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -57977,7 +57992,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -58001,7 +58016,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -59360,7 +59375,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -59384,7 +59399,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -59408,7 +59423,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -59432,7 +59447,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -59456,7 +59471,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -60248,7 +60263,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -60272,7 +60287,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -60296,7 +60311,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -60320,7 +60335,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -60440,7 +60455,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -60464,7 +60479,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -60488,7 +60503,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",
@@ -60512,7 +60527,7 @@
       "parameters": {
         "v": "4"
       },
-      "status": "staged",
+      "status": "archived",
       "title": null,
       "tags": [],
       "collection": "midjourney",

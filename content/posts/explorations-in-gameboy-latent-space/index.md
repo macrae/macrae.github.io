@@ -19,7 +19,7 @@ As a parent, finding a few moments of solitude can be challenging. But in these 
 
 I enjoy taking something familiar and well-known and casting it in a new light, and these Stable Diffusion models can transport me to new and unfamiliar contexts and perspectives with a single prompt. That’s why in this series, I have also included descriptions – written by myself – as an art critic examining each one on its visual merits and my emotional response to the piece.
 
-<a class="sm-depart-card" href="/gallery/#c:gameboy">
+<a class="sm-depart-card" href="/gallery/#tag=gameboy">
 <strong>See all of these in the gallery &#8599;</strong>
 <span>Every variant full size, with its prompt — filter by collection or tag, or run them as a slideshow.</span>
 </a>
