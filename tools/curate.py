@@ -29,6 +29,49 @@ INDEX = ROOT / "content" / "gallery" / "index.json"
 LOCK = threading.Lock()
 STATUSES = ("published", "staged", "archived")
 
+ARCHIVED_PAGE = """<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Archived</title><style>
+*{box-sizing:border-box}body{margin:0;background:#14130f;color:#efe9dd;
+font:15px/1.5 ui-sans-serif,-apple-system,system-ui,sans-serif;padding:2rem 1.5rem 5rem}
+h1{font:600 1.6rem/1.2 ui-serif,Georgia,serif;margin:0 0 .2rem}
+p.sub{color:#8b8474;margin:0 0 2rem}
+a{color:#e0937c}
+.grid{display:grid;gap:1.2rem;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+figure{margin:0;background:#1b1914;border:1px solid #2a261f;border-radius:4px;
+padding:.7rem;display:flex;flex-direction:column;gap:.55rem}
+img{width:100%%;height:auto;border-radius:2px;opacity:.75}
+figure:hover img{opacity:1}
+figcaption{font-size:.76rem;line-height:1.45;color:#a9a294;flex:1}
+figcaption small{color:#6f6a5e}
+button{background:#2f4858;color:#fff;border:0;border-radius:3px;padding:.45rem;
+cursor:pointer;font-size:.8rem}
+button:hover{background:#3f6b3f}
+button[disabled]{background:#3a352c;cursor:default}
+figure.gone{opacity:.35}
+</style></head><body>
+<h1>Archived</h1>
+<p class="sub">%d images, newest first. Nothing here is deleted &mdash; they are
+in <code>content/gallery/index.json</code> and in git. Restoring puts one back
+as <code>staged</code>. <a href="/gallery/">back to the gallery</a></p>
+<div class="grid">%s</div>
+<script>
+document.addEventListener("click", function (ev) {
+  var b = ev.target.closest("button[data-id]");
+  if (!b) return;
+  b.disabled = true; b.textContent = "Restoring\u2026";
+  fetch("/curate/status", {method:"POST",
+    headers:{"content-type":"application/json"},
+    body: JSON.stringify({ids:[b.dataset.id], status:"staged"})})
+   .then(function(r){return r.json();})
+   .then(function(res){
+     if (!res.ok) { b.disabled = false; b.textContent = "Restore"; return; }
+     b.textContent = "Restored";
+     b.closest("figure").classList.add("gone");
+   });
+});
+</script></body></html>"""
+
 
 def _load():
     return json.loads(INDEX.read_text(encoding="utf-8"))
@@ -67,6 +110,31 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header("cache-control", "public, max-age=3600")
             self.end_headers()
             self.wfile.write(blob)
+            return
+        if self.path.startswith("/curate/archived"):
+            # NOTHING IS DELETED. Archiving sets a word in a JSON file, so a
+            # change of mind costs one click -- but only if you can SEE what
+            # you archived, and the gallery build deliberately leaves those
+            # images out. This is that view.
+            with LOCK:
+                data = _load()
+            arch = [i for i in data["images"] if i["status"] == "archived"]
+            arch.sort(key=lambda i: (i.get("date") or "", i["file"]), reverse=True)
+            tiles = "".join(
+                '<figure data-id="%s"><img src="/gallery/images/%s" alt="" '
+                'loading="lazy"><figcaption>%s<br><small>%s</small></figcaption>'
+                '<button data-id="%s">Restore</button></figure>' % (
+                    i["id"], i["thumb"],
+                    (i.get("prompt") or "")[:150].replace("<", "&lt;"),
+                    i.get("date") or "", i["id"])
+                for i in arch)
+            page = ARCHIVED_PAGE % (len(arch), tiles)
+            body = page.encode("utf-8")
+            self.send_response(200)
+            self.send_header("content-type", "text/html; charset=utf-8")
+            self.send_header("content-length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
             return
         if self.path.startswith("/curate/statuses"):
             # THE PAGE IS A STATIC BUILD AND THE DECISIONS ARE NOT. Archiving
