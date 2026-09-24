@@ -107,6 +107,18 @@ a:hover { color: var(--sm-accent-soft); }
 hr { border: 0; border-top: 1px solid var(--sm-rule); margin: 2.5rem 0; }
 
 img, video { max-width: 100%; height: auto; }
+
+/* THE hidden ATTRIBUTE ONLY WORKS IF NOTHING OVERRIDES IT.
+   `hidden` hides an element because the BROWSER's stylesheet says
+   [hidden] { display: none }. Any author rule that sets display on the same
+   element wins, because author origin beats user-agent origin -- so
+   `.sm-lightbox { display: flex }` left a fixed, full-screen, opaque overlay
+   permanently on top of the gallery, and `.sm-tile { display: block }` made
+   the filter buttons do nothing visible while the JS dutifully set
+   tile.hidden. One missing line, three broken features, and every one of them
+   looked like a JavaScript bug.
+   !important because the whole point is to beat every later display rule. */
+[hidden] { display: none !important; }
 """
 
 _CHROME = """

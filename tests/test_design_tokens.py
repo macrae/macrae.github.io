@@ -54,3 +54,25 @@ def test_print_rules_exist_and_force_ink_on_white():
     assert "@media print" in css
     printed = css[css.index("@media print"):]
     assert "--sm-paper: #fff" in printed or "--sm-paper:#fff" in printed
+
+
+def test_the_hidden_attribute_actually_hides():
+    """`hidden` works only because the BROWSER's stylesheet says
+    [hidden]{display:none}. Any author rule setting display on the same
+    element beats it, because author origin outranks user-agent origin.
+
+    That is not hypothetical here: .sm-lightbox { display: flex } left a
+    fixed, full-screen, 94%-opaque overlay permanently on top of the gallery,
+    .sm-tile { display: block } made filtering do nothing visible, and
+    .sm-controls { display: flex } showed the controls to readers with no
+    JavaScript. One missing line, three broken features, all of which looked
+    like JavaScript bugs."""
+    import re
+    css = design.stylesheet()
+    rule = re.search(r"\[hidden\]\s*\{[^}]*display:\s*none\s*!important", css)
+    assert rule, "no [hidden] { display: none !important } rule in the stylesheet"
+
+    # And every class the renderers ship with a `hidden` attribute must be
+    # covered by it rather than relying on having no display rule of its own.
+    for cls in ("sm-lightbox", "sm-controls", "sm-tile"):
+        assert f".{cls}" in css, f"{cls} vanished; update this test"
