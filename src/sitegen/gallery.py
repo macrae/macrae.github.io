@@ -15,6 +15,7 @@ every image, read every prompt, and follow every tag.
 """
 
 import json
+import re
 from pathlib import Path
 
 from . import chrome, facets, spec
@@ -54,8 +55,32 @@ def load(include_unpublished=False):
     return out
 
 
+PARAMS_RE = re.compile(r"--(\w+)(?:\s+(\S+))?")
+
+
 def slug_for(image):
     return Path(image["file"]).stem
+
+
+def series_of(image):
+    """The prompt TEXT, parameters stripped -- the thing held constant.
+
+    Re-running a prompt is how this archive was made: the same words, a
+    different seed, sometimes a tweaked parameter. So the unit that means
+    something is the prompt, not the file. 2,342 images are 404 prompts; 183
+    of those are a single four-image grid and the rest are deliberate
+    re-runs, the largest explored 52 times.
+    """
+    text = PARAMS_RE.sub(" ", image.get("prompt") or "")
+    text = re.sub(r"[^a-z0-9 ]+", " ", text.lower()).strip()[:120]
+    if text:
+        return text
+    # NO TEXT PROMPT AT ALL. 43 images here were generated from an image
+    # prompt alone, so their Description is nothing but parameters. Lumping
+    # them under one "untitled" series would collapse 43 unrelated pictures
+    # into a single idea, which is the opposite of what this grouping is for.
+    # Each becomes its own series, keyed on its job.
+    return "job:" + (image.get("job_id") or image.get("id") or "")
 
 
 def collections(images):
@@ -74,6 +99,14 @@ def tags(images):
     return dict(sorted(out.items()))
 
 
+def series_index(images):
+    """{series key: [slugs]}, newest first within each."""
+    out = {}
+    for i in images:
+        out.setdefault(series_of(i), []).append(slug_for(i))
+    return out
+
+
 def _client_index_with_facets(images, per_image):
     """The smallest thing the filter needs, including each image's facets so
     the browser never has to re-derive them."""
@@ -83,6 +116,7 @@ def _client_index_with_facets(images, per_image):
         "a": i.get("title") or "",
         "p": (i.get("prompt") or "")[:400],
         "x": f,
+        "r": series_of(i),
     } for i, f in zip(images, per_image)]
 
 
@@ -154,6 +188,7 @@ def render_gallery(corpus, include_unpublished=False):
 
         f'<aside class="sm-panel">'
         f'<div class="sm-panel-head">'
+        f'<button class="sm-series" type="button" hidden>One per prompt</button>'
         f'<button class="sm-clear" type="button" hidden>Clear filters</button>'
         f'<button class="sm-play" type="button" hidden>Slideshow</button>'
         f'</div>'

@@ -367,6 +367,16 @@ _GALLERY = """
 .sm-archive:hover { background: var(--sm-accent); }
 .sm-archive[disabled] { opacity: 1; background: var(--sm-ink-faint); cursor: wait; }
 
+.sm-series { border-color: var(--sm-depart); color: var(--sm-depart); }
+.sm-series.is-on { background: var(--sm-depart); color: var(--sm-paper); }
+/* How many takes this tile stands for, while collapsed. */
+.sm-takes {
+  position: absolute; bottom: 6px; right: 6px; font-family: var(--sm-sans);
+  font-size: 0.68rem; letter-spacing: 0.04em; padding: 0.14rem 0.45rem;
+  border-radius: 999px; background: rgba(20, 18, 15, 0.78); color: #fff;
+  pointer-events: none;
+}
+
 .sm-more-wrap { text-align: center; margin: 1.6rem 0 0; }
 .sm-more {
   font-family: var(--sm-sans); font-size: 0.82rem; padding: 0.5rem 1.4rem;

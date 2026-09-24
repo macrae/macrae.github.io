@@ -46,6 +46,15 @@
   var shown = CHUNK;
   var moreBtn = document.querySelector(".sm-more");
 
+  // ONE PER PROMPT. This archive was made by re-running prompts to explore
+  // what the model does differently each time, so a "take" is not a
+  // duplicate -- but 2,342 takes of 398 ideas is unreadable. Collapsed, the
+  // newest take of each prompt stands for the series and carries its count.
+  var seriesMode = false;
+  var seriesBtn = document.querySelector(".sm-series");
+  var counts = {};
+  items.forEach(function (it) { counts[it.r] = (counts[it.r] || 0) + 1; });
+
   [clearBtn, playBtn].forEach(function (b) { if (b) b.hidden = false; });
 
   function matches(it) {
@@ -83,7 +92,17 @@
 
   function paint() {
     visible.forEach(function (tile, i) { tile.hidden = i >= shown; });
-    if (moreBtn) {
+    if (seriesBtn) {
+    seriesBtn.hidden = false;
+    seriesBtn.addEventListener("click", function () {
+      seriesMode = !seriesMode;
+      seriesBtn.classList.toggle("is-on", seriesMode);
+      seriesBtn.textContent = seriesMode ? "Every take" : "One per prompt";
+      apply();
+    });
+  }
+
+  if (moreBtn) {
       var left = visible.length - shown;
       moreBtn.hidden = left <= 0;
       moreBtn.textContent = left > 0
@@ -94,9 +113,16 @@
 
   function apply(keepShown) {
     visible = [];
+    var seenSeries = {};
     tiles.forEach(function (tile) {
       var it = bySlug[tile.dataset.slug];
       var show = !it || matches(it);
+      if (show && seriesMode && it) {
+        // Tiles are already newest-first, so the first one kept for a series
+        // is its most recent take.
+        if (seenSeries[it.r]) show = false;
+        else seenSeries[it.r] = true;
+      }
       tile.hidden = true;
       if (show) visible.push(tile);
     });
@@ -118,14 +144,35 @@
     });
 
     if (countEl) {
-      var head = visible.length === total
-        ? total + " images"
-        : visible.length + " of " + total + " images";
+      var noun = seriesMode ? " prompts" : " images";
+      var head = (!seriesMode && visible.length === total)
+        ? total + noun
+        : visible.length + (seriesMode ? noun + " of " + total + " takes"
+                                       : " of " + total + noun);
       countEl.textContent = visible.length > shown
         ? head + " \u2014 showing " + shown
         : head;
     }
     if (clearBtn) clearBtn.hidden = active === 0;
+
+    // A badge saying how many takes this tile stands for, shown only while
+    // collapsed -- on the full grid every take is already on screen.
+    tiles.forEach(function (tile) {
+      var badge = tile.querySelector(".sm-takes");
+      var it = bySlug[tile.dataset.slug];
+      var n = it ? counts[it.r] : 1;
+      if (seriesMode && n > 1) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "sm-takes";
+          tile.appendChild(badge);
+        }
+        badge.textContent = n + " takes";
+        badge.hidden = false;
+      } else if (badge) {
+        badge.hidden = true;
+      }
+    });
 
     var parts = [];
     for (var g in selected) {
@@ -149,6 +196,16 @@
       toggle(pill.dataset.group, pill.dataset.value);
     });
   });
+
+  if (seriesBtn) {
+    seriesBtn.hidden = false;
+    seriesBtn.addEventListener("click", function () {
+      seriesMode = !seriesMode;
+      seriesBtn.classList.toggle("is-on", seriesMode);
+      seriesBtn.textContent = seriesMode ? "Every take" : "One per prompt";
+      apply();
+    });
+  }
 
   if (moreBtn) {
     moreBtn.addEventListener("click", function () {
