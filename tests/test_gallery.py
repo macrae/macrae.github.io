@@ -235,5 +235,11 @@ def test_images_with_no_text_prompt_are_not_one_series():
     if len(textless) < 2:
         pytest.skip("no prompt-less images to check")
     keys = {gallery.series_of(i) for i in textless}
-    assert len(keys) == len(textless), (
-        f"{len(textless)} prompt-less images collapsed into {len(keys)} series")
+    jobs = {i.get("job_id") for i in textless}
+    # One series PER JOB, not per image: the four variants of a single grid
+    # are one run and belong together. What must not happen is all of them
+    # collapsing into a single "untitled" series.
+    assert len(keys) == len(jobs), (
+        f"{len(textless)} prompt-less images across {len(jobs)} jobs "
+        f"collapsed into {len(keys)} series")
+    assert len(keys) > 1, "every prompt-less image landed in one series"
