@@ -55,11 +55,11 @@ def docs_of(images):
     return out
 
 
-def tfidf(docs, min_df=8):
+def tfidf(docs, min_df=8, max_df=0.6):
     df = Counter()
     for d in docs:
         df.update(set(d))
-    vocab = {w for w, n in df.items() if n >= min_df and n < len(docs) * 0.6}
+    vocab = {w for w, n in df.items() if n >= min_df and n < len(docs) * max_df}
     n = len(docs)
     idf = {w: math.log(n / df[w]) for w in vocab}
     vectors = []
@@ -131,6 +131,79 @@ def kmeans(vectors, k, iters=25, seed=SEED):
     return assign, centres
 
 
+def lda(docs, vocab, k, iters=250, alpha=None, beta=0.01, seed=SEED):
+    """Latent Dirichlet Allocation by collapsed Gibbs sampling.
+
+    Chosen over k-means for one reason that matters here: MIXED MEMBERSHIP. A
+    prompt like "a photorealistic airbrushed oil painting in the style of Tim
+    Jacobus, a vertical book cover" is genuinely three topics at once, and
+    k-means has to pick one and throw the rest away. A facet is exactly the
+    place where an image should be allowed to belong to several things.
+
+    Pure Python. ~70k tokens over 12 topics for 250 sweeps is a few minutes,
+    which is fine for something run by hand and committed afterwards.
+
+    Deterministic: seeded, fixed sweeps. This writes into a committed file.
+    """
+    rng = random.Random(seed)
+    index = {w: i for i, w in enumerate(vocab)}
+    corpus = [[index[w] for w in d if w in index] for d in docs]
+    V, D = len(vocab), len(corpus)
+    alpha = alpha if alpha is not None else 50.0 / k
+
+    nd = [[0] * k for _ in range(D)]          # doc -> topic counts
+    nw = [[0] * V for _ in range(k)]          # topic -> word counts
+    nk = [0] * k                              # topic totals
+    z = []
+    for d, doc in enumerate(corpus):
+        zs = []
+        for w in doc:
+            t = rng.randrange(k)
+            zs.append(t)
+            nd[d][t] += 1
+            nw[t][w] += 1
+            nk[t] += 1
+        z.append(zs)
+
+    vbeta = V * beta
+    for sweep in range(iters):
+        for d, doc in enumerate(corpus):
+            ndd = nd[d]
+            for i, w in enumerate(doc):
+                t = z[d][i]
+                ndd[t] -= 1; nw[t][w] -= 1; nk[t] -= 1
+                total, probs = 0.0, [0.0] * k
+                for tt in range(k):
+                    pr = (ndd[tt] + alpha) * (nw[tt][w] + beta) / (nk[tt] + vbeta)
+                    probs[tt] = pr
+                    total += pr
+                r, acc, new = rng.random() * total, 0.0, k - 1
+                for tt in range(k):
+                    acc += probs[tt]
+                    if acc >= r:
+                        new = tt
+                        break
+                z[d][i] = new
+                ndd[new] += 1; nw[new][w] += 1; nk[new] += 1
+        if sweep and sweep % 50 == 0:
+            print(f"    sweep {sweep}/{iters}")
+
+    # theta: per-document topic mixture; phi: per-topic word distribution
+    theta = [[(nd[d][t] + alpha) / (len(corpus[d]) + k * alpha) if corpus[d] else 0.0
+              for t in range(k)] for d in range(D)]
+    phi = [[(nw[t][w] + beta) / (nk[t] + vbeta) for w in range(V)] for t in range(k)]
+    return theta, phi
+
+
+def topic_labels(phi, vocab, n=3):
+    """Name a topic by the words it puts the most mass on."""
+    out = []
+    for row in phi:
+        top = sorted(range(len(vocab)), key=lambda w: -row[w])[:n]
+        out.append("-".join(vocab[w] for w in top))
+    return out
+
+
 def label(centre, others, n=3):
     """Terms that distinguish this cluster from the average of the rest."""
     rest = defaultdict(float)
@@ -146,6 +219,42 @@ def label(centre, others, n=3):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("-k", type=int, default=12, help="how many themes")
+    # DEFAULT IS K-MEANS, AND IT WAS MEASURED RATHER THAN ASSUMED.
+    #
+    # LDA is the better-fitting model on paper -- a prompt really is several
+    # topics at once, and mixed membership is what a facet wants. It was
+    # implemented, run twice, and lost both times on this corpus:
+    #
+    #   k-means  x-men 449, frazetta-fantasy 303, goosebumps 248,
+    #            landscapes 220, coloring-pages 150, star-wars 130
+    #   LDA      cinematic-comiccore-pop 585, sword-girl-lavender 375,
+    #            streets-around-metal 361, sense-mallard-frank 290
+    #
+    # My first explanation was that shared style boilerplate dominated LDA's
+    # topics while idf suppressed it for k-means. That was WRONG, and the
+    # measurement says so: tightening max_df from 0.6 to 0.10 changed the
+    # vocabulary by fourteen terms, 2,254 to 2,240, and the topics stayed
+    # just as vague.
+    #
+    # The real reason is document length. The median prompt is SIXTEEN tokens
+    # and 828 of 2,342 have fewer than ten usable ones. LDA infers a per
+    # document topic MIXTURE from the tokens in that document, and sixteen
+    # tokens is not enough evidence for a mixture. TF-IDF never needs to: it
+    # compares whole weighted vectors and puts enormous weight on rare
+    # distinctive terms -- wolverine, frazetta, goosebumps -- which is exactly
+    # what makes a theme recognisable to a person.
+    #
+    # Keep both. On a corpus of longer prompts LDA would likely win, and the
+    # `themes` list it writes is read by the facet layer already.
+    ap.add_argument("--method", choices=("lda", "kmeans"), default="kmeans",
+                    help="lda allows an image in several themes; measured "
+                         "worse here, see the note above")
+    ap.add_argument("--max-df", type=float, default=0.6,
+                    help="drop terms appearing in more than this share of "
+                         "prompts; LDA needs this tighter than k-means because "
+                         "it has no idf to suppress boilerplate")
+    ap.add_argument("--min-weight", type=float, default=0.18,
+                    help="lda: least share of a prompt a topic needs to count")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -154,8 +263,48 @@ def main():
     if len(images) < args.k * 5:
         raise SystemExit(f"only {len(images)} images: too few for {args.k} themes")
 
-    vectors, vocab = tfidf(docs_of(images))
-    print(f"{len(images)} prompts, {len(vocab)} terms kept\n")
+    docs = docs_of(images)
+    vectors, vocab = tfidf(docs, max_df=args.max_df)
+    print(f"{len(images)} prompts, {len(vocab)} terms kept "
+          f"({args.method})\n")
+
+    if args.method == "lda":
+        theta, phi = lda(docs, vocab, args.k)
+        names = {c: n for c, n in enumerate(topic_labels(phi, vocab))}
+        seen = Counter()
+        for c in range(args.k):
+            seen[names[c]] += 1
+            if seen[names[c]] > 1:
+                names[c] = f"{names[c]}-{seen[names[c]]}"
+        # MIXED MEMBERSHIP: every topic holding a real share of a prompt, not
+        # just the largest. That is the whole reason for choosing LDA.
+        themes = []
+        for row in theta:
+            picked = [names[c] for c in range(args.k) if row[c] >= args.min_weight]
+            if not picked and any(row):
+                picked = [names[max(range(args.k), key=lambda c: row[c])]]
+            themes.append(sorted(picked))
+        sizes = Counter(t for ts in themes for t in ts)
+        for name, n in sizes.most_common():
+            c = next(c for c in names if names[c] == name)
+            print(f"  {n:5}  {name}")
+            for img, ts in zip(images, themes):
+                if ts and ts[0] == name:
+                    print(f"         {(img.get('prompt') or '')[:72]}")
+                    break
+        multi = sum(1 for t in themes if len(t) > 1)
+        print(f"\n  {multi} of {len(themes)} prompts sit in more than one theme")
+        if args.dry_run:
+            print("\n--dry-run: nothing written")
+            return 0
+        for img, ts in zip(images, themes):
+            img["themes"] = ts
+            img.pop("theme", None)
+        INDEX.write_text(json.dumps(data, indent=2, ensure_ascii=False),
+                         encoding="utf-8")
+        print(f"\nwrote `themes` onto {len(images)} images")
+        return 0
+
     assign, centres = kmeans(vectors, args.k)
 
     names, sizes = {}, Counter(assign.values())

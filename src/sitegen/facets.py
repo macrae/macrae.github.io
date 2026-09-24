@@ -88,7 +88,11 @@ def for_image(image):
             if image.get("collection"):
                 values = [image["collection"]]
         elif source == "field:theme":
-            if image.get("theme"):
+            # LDA gives MIXED MEMBERSHIP: a prompt can be three topics at
+            # once, and a facet is exactly where that should be allowed. The
+            # singular `theme` is still read so a k-means run stays usable.
+            values = list(image.get("themes") or [])
+            if not values and image.get("theme"):
                 values = [image["theme"]]
         elif source == "field:tags":
             values = list(image.get("tags") or [])
