@@ -281,7 +281,7 @@ def render_gallery(corpus, include_unpublished=False):
     )
     return chrome.page(title="Gallery", body=body, current="gallery",
                        description="Images, mostly made with Midjourney.",
-                       url=spec.url_for("gallery"), wide=True,
+                       url=spec.url_for("gallery"), wide="gallery",
                        scripts=[{"src": "/assets/" + s} for s in SCRIPTS])
 
 
@@ -329,7 +329,7 @@ def render_series(corpus, key, images):
             + f'<h2 class="sm-section-head">Every take</h2>'
             + f'<div class="sm-grid">{tiles}</div>')
     return chrome.page(title=(first.get("title") or prompt)[:70],
-                       body=body, current="gallery", wide=True,
+                       body=body, current="gallery", wide="gallery",
                        description=f"{len(images)} takes of one prompt.",
                        url=spec.url_for("series", slug=series_slug(key)),
                        image="/gallery/images/" + first["file"])

@@ -59,6 +59,7 @@ _TOKENS = """
 
   --sm-measure: MEASURE;
   --sm-wide:    62rem;
+  --sm-gallery: 108rem;
   --sm-step:    1.55;
 }
 
@@ -289,6 +290,9 @@ _GALLERY = """
    a filter you have to scroll back up to reach is a filter people stop
    using. */
 .sm-gallery-layout { display: grid; grid-template-columns: 210px 1fr; gap: 2rem; }
+/* The gallery gets its own width. Everything else on the site is prose and
+   wants a narrow measure; a grid of pictures wants the screen. */
+main.sm-gallery-wide { max-width: var(--sm-gallery); }
 @media (max-width: 52rem) {
   .sm-gallery-layout { grid-template-columns: 1fr; gap: 1.2rem; }
   .sm-panel { position: static !important; max-height: none !important; }
@@ -337,10 +341,23 @@ _GALLERY = """
    makes the collection feel smaller than it is. */
 .sm-pill.is-off { opacity: 0.35; }
 
-/* A column grid rather than a fixed one: these are mixed aspect ratios and a
-   square grid either crops or letterboxes every single one. */
-.sm-grid { columns: 240px; column-gap: 0.7rem; }
-.sm-tile { display: block; margin: 0 0 0.7rem; break-inside: avoid; line-height: 0; }
+/* ROW ORDER, which means a grid and not CSS columns.
+   `columns` fills each column top-to-bottom before starting the next, so the
+   second picture sits BELOW the first rather than beside it -- the reading
+   order runs down the page while the eye expects it to run across. A grid
+   places items across each row in document order, which for a gallery sorted
+   newest-first is the only order that makes sense.
+   `align-items: start` keeps every image at its own aspect ratio: these run
+   1:1 and 3:4 and a few 16:9, and stretching a row to a common height would
+   crop or letterbox most of them. Row bottoms are ragged as a result, which
+   is the honest trade. */
+.sm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.7rem;
+  align-items: start;
+}
+.sm-tile { display: block; margin: 0; line-height: 0; }
 .sm-tile img { width: 100%; height: auto; border-radius: 2px;
                transition: opacity 0.12s ease-in; }
 .sm-tile:hover img { opacity: 0.86; }
@@ -454,7 +471,7 @@ a.sm-takes:hover { background: var(--sm-accent); }
 @media print {
   .sm-panel, .sm-lightbox { display: none; }
   .sm-gallery-layout { display: block; }
-  .sm-grid { columns: 2; }
+  .sm-grid { grid-template-columns: repeat(2, 1fr); }
 }
 """
 

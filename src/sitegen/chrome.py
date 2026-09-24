@@ -100,7 +100,10 @@ def footer():
 
 def page(*, title, body, description="", url="/", current=None, kind="website",
          image=None, noindex=False, wide=False, styles=(), scripts=()):
-    trim = "sm-wide" if wide else "sm-trim"
+    # `wide` is False for prose, True for a wide page, or "gallery" for the
+    # widest -- a grid of pictures wants the screen, prose does not.
+    trim = ("sm-wide sm-gallery-wide" if wide == "gallery"
+            else "sm-wide" if wide else "sm-trim")
     return (
         "<!DOCTYPE html>\n"
         '<html lang="en">\n<head>'
