@@ -243,3 +243,21 @@ def test_images_with_no_text_prompt_are_not_one_series():
         f"{len(textless)} prompt-less images across {len(jobs)} jobs "
         f"collapsed into {len(keys)} series")
     assert len(keys) > 1, "every prompt-less image landed in one series"
+
+
+def test_every_tile_carries_the_id_curation_needs(tree):
+    """The archive button posts `data-id`. Without it the request carries a
+    null, the server answers 404, and the X silently does nothing -- which is
+    exactly what happened, twice, because the attribute was added by a string
+    replacement that did not apply and reported success anyway."""
+    html = (tree / "gallery" / "index.html").read_text(encoding="utf-8")
+    tiles = re.findall(r'<a class="sm-tile"[^>]*>', html)
+    assert tiles, "no tiles rendered"
+    known = {i["id"] for i in gallery.load()}
+    checked = 0
+    for tag in tiles:
+        m = re.search(r'data-id="([^"]+)"', tag)
+        assert m, f"tile has no data-id: {tag[:110]}"
+        assert m.group(1) in known, f"tile has an unknown id: {m.group(1)}"
+        checked += 1
+    assert checked == len(tiles) >= 10

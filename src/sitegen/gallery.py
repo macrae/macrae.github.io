@@ -162,11 +162,18 @@ def _client_index(images):
 
 
 def _tile(image):
+    """One tile.
+
+    `data-id` is load-bearing: the curation server identifies an image by it,
+    and without it the archive button posted a null id, the server correctly
+    answered 404, and the X appeared to do nothing at all. `data-staged` dims
+    it in the preview so curating is not guesswork about what is already live.
+    """
     s = slug_for(image)
-    staged = ' data-staged="1"' if image.get("status") != "published" else ""
-    alt = image.get("title") or image.get("prompt", "")[:120] or "Untitled"
+    staged = "" if image.get("status") == "published" else ' data-staged="1"'
+    alt = image.get("title") or (image.get("prompt") or "")[:120] or "Untitled"
     return (f'<a class="sm-tile" href="{esc(spec.url_for("image", slug=s))}" '
-            f'data-slug="{esc(s)}">'
+            f'data-slug="{esc(s)}" data-id="{esc(image["id"])}"{staged}>'
             f'<img src="{esc("/gallery/images/" + image["thumb"])}" '
             f'alt="{esc(alt)}" width="{image["width"]}" height="{image["height"]}" '
             f'loading="lazy" decoding="async">'
