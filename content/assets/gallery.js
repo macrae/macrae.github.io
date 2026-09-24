@@ -50,6 +50,7 @@
   var box = document.getElementById("sm-lightbox");
 
   var CHUNK = 120;
+  var curating = false;
   var selected = {};              // group -> [values]
   var seriesMode = false;
   var shown = CHUNK;
@@ -251,6 +252,7 @@
   }).then(function (health) {
     if (!health || !health.ok) return;
     document.body.classList.add("sm-curating");
+    curating = true;
     tiles.forEach(function (tile) {
       var btn = document.createElement("button");
       btn.className = "sm-archive";
@@ -291,7 +293,20 @@
     at = (i + visible.length) % visible.length;
     var it = bySlug[visible[at].dataset.slug];
     if (!it) return;
-    img.src = "/gallery/images/" + it.f;
+    // Full size if one has been generated, thumbnail otherwise. A staged
+    // image has only a thumbnail, and asking for the other file gave a 404
+    // and an empty lightbox with the prompt sitting underneath it.
+    // While curating, the local server hands over the ORIGINAL from the
+    // archive, because judging a picture at 480px is guesswork. On the
+    // deployed site that route does not exist and this falls through to the
+    // published file.
+    var thumb = "/gallery/images/" + it.t;
+    img.onerror = function () {
+      if (img.getAttribute("src") !== thumb) img.src = thumb;
+    };
+    img.src = curating
+      ? "/curate/original/" + encodeURIComponent(visible[at].dataset.id)
+      : "/gallery/images/" + (it.hf ? it.f : it.t);
     img.alt = it.a || it.p.slice(0, 120);
     cap.textContent = it.a ? it.a + " — " + it.p : it.p;
     box.hidden = false;

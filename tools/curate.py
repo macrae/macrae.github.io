@@ -21,6 +21,7 @@ import threading
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parent.parent
 PREVIEW = ROOT / "preview"
@@ -43,6 +44,30 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        if self.path.startswith("/curate/original/"):
+            # THE ORIGINAL, STRAIGHT OFF THE ARCHIVE. A staged image has only
+            # a 480px thumbnail in the repository, because generating full
+            # sizes for 2,400 pictures that may never be published would cost
+            # 190 MiB of git. But judging an image at 480px is guesswork, so
+            # while curating the lightbox gets the real file from
+            # archive/gallery-source/ -- local only, zero repository cost, and
+            # absent in production exactly like the archive button.
+            key = unquote(self.path.rsplit("/", 1)[-1].split("?")[0])
+            with LOCK:
+                img = next((i for i in _load()["images"] if i["id"] == key), None)
+            if not img:
+                return self._json({"error": "unknown id"}, 404)
+            src = Path(img.get("source", ""))
+            if not src.exists():
+                return self._json({"error": "source not in the archive"}, 404)
+            blob = src.read_bytes()
+            self.send_response(200)
+            self.send_header("content-type", "image/png")
+            self.send_header("content-length", str(len(blob)))
+            self.send_header("cache-control", "public, max-age=3600")
+            self.end_headers()
+            self.wfile.write(blob)
+            return
         if self.path.startswith("/curate/health"):
             with LOCK:
                 data = _load()

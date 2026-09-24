@@ -141,6 +141,11 @@ def _client_index_with_facets(images, per_image):
         "x": f,
         "r": series_of(i),
         "rs": series_slug(series_of(i)),
+        # A STAGED IMAGE HAS ONLY A THUMBNAIL. The lightbox must know which
+        # file exists; asking for the other one gave a 404 and an empty frame
+        # with the prompt sitting underneath it.
+        "t": i["thumb"],
+        "hf": 1 if (IMAGES / i["file"]).exists() else 0,
     } for i, f in zip(images, per_image)]
 
 
@@ -159,6 +164,17 @@ def _client_index(images):
         "g": i.get("tags", []),
         "p": i.get("prompt", "")[:400],
     } for i in images]
+
+
+def _best_file(image):
+    """The largest file that EXISTS for this image.
+
+    Full sizes are generated when an image is published, so a staged one has
+    only its thumbnail. Linking to the full size regardless renders an empty
+    frame -- and on the per-image page, an empty frame with the prompt
+    underneath it, which reads as a broken site rather than an uncurated one.
+    """
+    return image["file"] if (IMAGES / image["file"]).exists() else image["thumb"]
 
 
 def _tile(image):
@@ -353,11 +369,14 @@ def render_image(corpus, image, neighbours):
     body = (
         f'<article class="sm-prose">'
         f'<figure class="sm-image-full">'
-        f'<img src="{esc("/gallery/images/" + image["file"])}" '
+        f'<img src="{esc("/gallery/images/" + _best_file(image))}" '
         f'alt="{esc(image.get("title") or image.get("prompt", "")[:120])}" '
         f'width="{image["width"]}" height="{image["height"]}">'
         + (f'<figcaption>{esc(image["caption"])}</figcaption>'
            if image.get("caption") else "")
+        + ("" if (IMAGES / image["file"]).exists() else
+           '<figcaption>Shown at thumbnail size \u2014 the full-size file is '
+           'generated when this image is published.</figcaption>')
         + '</figure>'
         f'<p class="sm-dateline">{" &middot; ".join(meta)}</p>'
         + (f'<h1 class="sm-title" style="font-size:1.5rem">{esc(image["title"])}</h1>'
