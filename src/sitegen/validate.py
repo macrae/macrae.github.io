@@ -100,6 +100,21 @@ def check_tree(root, corpus, report):
             if not src:
                 report.error(rel, "<script> with no src")
                 continue
+            # A <head> script without defer/async runs before the DOM it acts
+            # on exists. That failed silently once already -- the gallery's
+            # filters simply did nothing, with no error anywhere -- so it is
+            # a hard failure now rather than something to notice by clicking.
+            # BARE ATTRIBUTES ARE NOT IN `attrs`. _attrs only parses
+            # key="value" pairs, and `defer` has no value -- so checking the
+            # parsed dict reported a correctly-deferred script as broken.
+            # Check the raw attribute text.
+            raw = m.group(1)
+            deferred = re.search(r"\b(defer|async)\b", raw, re.I)
+            in_head = m.start() < (html.find("</head>") if "</head>" in html else 0)
+            if in_head and not deferred:
+                report.error(rel, f"{src!r} is a <head> script with neither "
+                                  "defer nor async, so it runs before the "
+                                  "page exists")
             if src.startswith(("http://", "https://", "//")):
                 report.error(rel, f"remote script {src!r} — a CDN is a third "
                                   "party who can change the page after you built it")

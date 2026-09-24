@@ -55,8 +55,17 @@ def head(*, title, description="", url="/", kind="website", image=None,
     for href in styles:
         parts.append(f'<link rel="stylesheet" href="{esc(href)}">')
     for entry in scripts:
-        defer = " defer" if str(entry.get("defer", "")).lower() == "true" else ""
-        parts.append(f'<script src="{esc(entry["src"])}"{defer}></script>')
+        # DEFER IS THE DEFAULT, and opting out is the thing you have to say.
+        #
+        # Scripts are emitted in <head>, so without `defer` they execute
+        # before the document they are about exists. The gallery shipped
+        # exactly like that: getElementById returned null, the script's own
+        # guard returned early, and nothing filtered, errored or logged. A
+        # render-blocking head script is almost never what a content site
+        # wants, so the safe behaviour is the one you get for free.
+        blocking = str(entry.get("defer", "true")).lower() == "false"
+        attr = "" if blocking else " defer"
+        parts.append(f'<script src="{esc(entry["src"])}"{attr}></script>')
     return "".join(p for p in parts if p)
 
 
