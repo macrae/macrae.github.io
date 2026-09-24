@@ -253,6 +253,29 @@
     if (!health || !health.ok) return;
     document.body.classList.add("sm-curating");
     curating = true;
+
+    // RECONCILE THE PAGE WITH THE FILE. This HTML was built at some point in
+    // the past and archiving does not rebuild it, so without this a refresh
+    // brings back every image already archived -- which reads as the work
+    // having been thrown away when it is sitting safely in index.json.
+    fetch("/curate/statuses").then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (statuses) {
+      if (!statuses) return;
+      var gone = 0;
+      tiles.slice().forEach(function (tile) {
+        if (statuses[tile.dataset.id] === "archived") {
+          var at = tiles.indexOf(tile);
+          if (at !== -1) tiles.splice(at, 1);
+          tile.remove();
+          gone++;
+        }
+      });
+      if (gone) {
+        total = tiles.length;
+        apply(true);
+      }
+    }).catch(function () { /* stale page, nothing worse than before */ });
     tiles.forEach(function (tile) {
       var btn = document.createElement("button");
       btn.className = "sm-archive";

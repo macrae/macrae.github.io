@@ -68,6 +68,17 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(blob)
             return
+        if self.path.startswith("/curate/statuses"):
+            # THE PAGE IS A STATIC BUILD AND THE DECISIONS ARE NOT. Archiving
+            # writes to index.json immediately, but the rendered HTML still
+            # holds every tile it had when it was built -- so a refresh
+            # brought archived images back and looked exactly like the work
+            # had been lost. It had not: it was in the file the whole time.
+            # The client asks for the current statuses on load and drops what
+            # has gone, instead of rebuilding 2,400 pages after every click.
+            with LOCK:
+                data = _load()
+            return self._json({i["id"]: i["status"] for i in data["images"]})
         if self.path.startswith("/curate/health"):
             with LOCK:
                 data = _load()
