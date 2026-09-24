@@ -44,8 +44,14 @@ def load(include_unpublished=False):
     data = json.loads(INDEX.read_text(encoding="utf-8"))
     images = data.get("images", [])
     if include_unpublished:
-        return [i for i in images if i.get("status") != "archived"]
-    return [i for i in images if i.get("status") == "published"]
+        out = [i for i in images if i.get("status") != "archived"]
+    else:
+        out = [i for i in images if i.get("status") == "published"]
+    # NEWEST FIRST. An archive spanning four years is unreadable in filename
+    # order, which is what it was sorted by. Undated images sort last rather
+    # than being treated as ancient -- absent is not a date.
+    out.sort(key=lambda i: (i.get("date") or "0000-00-00", i["file"]), reverse=True)
+    return out
 
 
 def slug_for(image):

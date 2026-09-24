@@ -40,6 +40,12 @@
   var visible = tiles.slice();
   var total = tiles.length;
 
+  // SHOW A PAGE AT A TIME. Two and a half thousand tiles at once is
+  // unreadable before it is slow, and scanning is the whole job here.
+  var CHUNK = 120;
+  var shown = CHUNK;
+  var moreBtn = document.querySelector(".sm-more");
+
   [clearBtn, playBtn].forEach(function (b) { if (b) b.hidden = false; });
 
   function matches(it) {
@@ -75,14 +81,27 @@
     return n;
   }
 
-  function apply() {
+  function paint() {
+    visible.forEach(function (tile, i) { tile.hidden = i >= shown; });
+    if (moreBtn) {
+      var left = visible.length - shown;
+      moreBtn.hidden = left <= 0;
+      moreBtn.textContent = left > 0
+        ? "Show " + Math.min(CHUNK, left) + " more (" + left + " left)"
+        : "";
+    }
+  }
+
+  function apply(keepShown) {
     visible = [];
     tiles.forEach(function (tile) {
       var it = bySlug[tile.dataset.slug];
       var show = !it || matches(it);
-      tile.hidden = !show;
+      tile.hidden = true;
       if (show) visible.push(tile);
     });
+    if (!keepShown) shown = CHUNK;
+    paint();
 
     var active = 0;
     pills.forEach(function (pill) {
@@ -99,9 +118,12 @@
     });
 
     if (countEl) {
-      countEl.textContent = visible.length === total
+      var head = visible.length === total
         ? total + " images"
         : visible.length + " of " + total + " images";
+      countEl.textContent = visible.length > shown
+        ? head + " \u2014 showing " + shown
+        : head;
     }
     if (clearBtn) clearBtn.hidden = active === 0;
 
@@ -128,6 +150,13 @@
     });
   });
 
+  if (moreBtn) {
+    moreBtn.addEventListener("click", function () {
+      shown += CHUNK;
+      apply(true);
+    });
+  }
+
   if (clearBtn) {
     clearBtn.addEventListener("click", function () {
       selected = {};
@@ -146,6 +175,47 @@
     });
   })();
   apply();
+
+  // -------------------------------------------------------- local curation
+  //
+  // Probed once, and ABSENT rather than broken when it is not there. The
+  // deployed site has no /curate endpoint, so these buttons never exist for a
+  // visitor -- the same way the sibling mana-map repo gates its local API.
+
+  fetch("/curate/health").then(function (r) {
+    return r.ok ? r.json() : null;
+  }).then(function (health) {
+    if (!health || !health.ok) return;
+    document.body.classList.add("sm-curating");
+
+    tiles.forEach(function (tile) {
+      var btn = document.createElement("button");
+      btn.className = "sm-archive";
+      btn.type = "button";
+      btn.title = "Archive — hide from the site (kept in git)";
+      btn.textContent = "\u00d7";
+      btn.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        btn.disabled = true;
+        fetch("/curate/status", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ ids: [tile.dataset.id], status: "archived" }),
+        }).then(function (r) { return r.json(); }).then(function (res) {
+          if (!res.ok) { btn.disabled = false; return; }
+          // Drop it from the working set so counts and the slideshow agree
+          // with what is on screen.
+          var at = tiles.indexOf(tile);
+          if (at !== -1) tiles.splice(at, 1);
+          total = tiles.length;
+          tile.remove();
+          apply(true);
+        }).catch(function () { btn.disabled = false; });
+      });
+      tile.appendChild(btn);
+    });
+  }).catch(function () { /* no curation server: nothing to do */ });
 
   // -------------------------------------------------------------- lightbox
 

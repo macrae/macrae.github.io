@@ -354,6 +354,27 @@ _GALLERY = """
 }
 .sm-tile { position: relative; }
 
+/* The archive control exists ONLY while the local curation server is running
+   -- gallery.js adds the class after probing /curate/health, which the
+   deployed site does not have. A visitor never sees it. */
+.sm-archive {
+  position: absolute; top: 5px; left: 5px; width: 26px; height: 26px;
+  border: 0; border-radius: 50%; cursor: pointer; line-height: 1;
+  font-size: 1.05rem; background: rgba(20, 18, 15, 0.72); color: #fff;
+  opacity: 0; transition: opacity 0.1s ease-in;
+}
+.sm-tile:hover .sm-archive, .sm-archive:focus { opacity: 1; }
+.sm-archive:hover { background: var(--sm-accent); }
+.sm-archive[disabled] { opacity: 1; background: var(--sm-ink-faint); cursor: wait; }
+
+.sm-more-wrap { text-align: center; margin: 1.6rem 0 0; }
+.sm-more {
+  font-family: var(--sm-sans); font-size: 0.82rem; padding: 0.5rem 1.4rem;
+  border: 1px solid var(--sm-rule); border-radius: 999px; background: none;
+  color: var(--sm-ink-soft); cursor: pointer;
+}
+.sm-more:hover { border-color: var(--sm-accent); color: var(--sm-accent); }
+
 .sm-lightbox {
   position: fixed; inset: 0; z-index: 50; background: rgba(12, 11, 9, 0.94);
   display: flex; align-items: center; justify-content: center; gap: 0.5rem;
